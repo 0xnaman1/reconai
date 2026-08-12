@@ -42,14 +42,14 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 3: Supabase Cloud Setup
 
-- [ ] Create Supabase Cloud project.
-- [ ] Copy Supabase project URL into `.env`.
-- [ ] Copy Supabase service role key into `.env`.
-- [ ] Copy Postgres connection string into `.env` as `DATABASE_URL`.
-- [ ] Create Supabase Storage bucket named `reconciliation-documents`.
-- [ ] Document bucket setup in `README.md`.
-- [ ] Verify local backend can connect to Supabase Postgres.
-- [ ] Verify local backend can access Supabase Storage.
+- [x] Create Supabase Cloud project.
+- [x] Copy Supabase project URL into `.env`.
+- [x] Copy Supabase secret key into `.env`.
+- [x] Copy Postgres connection string into `.env` as `DATABASE_URL`.
+- [x] Create Supabase Storage bucket named `reconciliation-documents`.
+- [x] Document bucket setup in `README.md`.
+- [x] Verify local backend can connect to Supabase Postgres.
+- [x] Verify local backend can access Supabase Storage.
 
 ## Phase 4: Shared Core Package
 

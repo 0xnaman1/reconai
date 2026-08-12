@@ -15,6 +15,9 @@ dependencies = [
   "supabase>=2.18.1"
 ]
 
+[project.scripts]
+verify-supabase = "recon_ai_core.verify_supabase:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

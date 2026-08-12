@@ -169,7 +169,7 @@ The project should provide a `.env.example` with at least:
 ```env
 DATABASE_URL=postgresql+psycopg://postgres:<password>@<host>:5432/postgres
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SUPABASE_SECRET_KEY=your-supabase-secret-key
 SUPABASE_STORAGE_BUCKET=reconciliation-documents
 
 OPENAI_API_KEY=your-openai-api-key
@@ -191,7 +191,7 @@ Setup steps:
 
 1. Create a Supabase Cloud project.
 2. Copy the project URL into `SUPABASE_URL`.
-3. Copy the service role key into `SUPABASE_SERVICE_ROLE_KEY`.
+3. Copy the secret key into `SUPABASE_SECRET_KEY`.
 4. Copy the Postgres connection string into `DATABASE_URL`.
 5. Create a Storage bucket named `reconciliation-documents`.
 6. Run Alembic migrations against the Supabase Postgres database.
