@@ -30,15 +30,15 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 2: Python Workspace Setup
 
-- [ ] Initialize `packages/core` Python package.
-- [ ] Initialize `apps/api` Python package.
-- [ ] Initialize `apps/worker` Python package.
-- [ ] Configure all Python packages with `requires-python = ">=3.14"`.
-- [ ] Add core backend dependencies.
-- [ ] Add FastAPI dependencies to `apps/api`.
-- [ ] Add RQ worker dependencies to `apps/worker`.
-- [ ] Run `uv sync` successfully.
-- [ ] Verify imports work across workspace packages.
+- [x] Initialize `packages/core` Python package.
+- [x] Initialize `apps/api` Python package.
+- [x] Initialize `apps/worker` Python package.
+- [x] Configure all Python packages with `requires-python = ">=3.14"`.
+- [x] Add core backend dependencies.
+- [x] Add FastAPI dependencies to `apps/api`.
+- [x] Add RQ worker dependencies to `apps/worker`.
+- [x] Run `uv sync` successfully.
+- [x] Verify imports work across workspace packages.
 
 ## Phase 3: Supabase Cloud Setup
 
