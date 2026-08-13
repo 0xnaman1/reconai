@@ -6,7 +6,7 @@ The MVP uses FastAPI, Next.js, OpenAI, Supabase Cloud, Redis, RQ, uv, Python 3.1
 
 ## Current Status
 
-Phase 3 is complete. Python workspace packages are configured, and Supabase Cloud DB plus Storage verification passes. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
+Phase 4 is complete. Shared settings, database helpers, SQLAlchemy models, and Pydantic schemas are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
 
 ## Repository Layout
 
@@ -46,6 +46,12 @@ Verify Python and workspace imports:
 ```bash
 uv run python --version
 uv run python -c "import recon_ai_core, recon_ai_api, recon_ai_worker; print('ok')"
+```
+
+Verify shared SQLAlchemy metadata:
+
+```bash
+uv run python -c "from recon_ai_core.database import Base; import recon_ai_core.models; print(sorted(Base.metadata.tables.keys()))"
 ```
 
 ## Supabase Cloud Setup

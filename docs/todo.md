@@ -53,18 +53,18 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 4: Shared Core Package
 
-- [ ] Add application settings with `pydantic-settings`.
-- [ ] Add database engine and session helpers.
-- [ ] Add SQLAlchemy base metadata.
-- [ ] Add SQLAlchemy models for reconciliation jobs.
-- [ ] Add SQLAlchemy models for transactions.
-- [ ] Add SQLAlchemy models for matches.
-- [ ] Add SQLAlchemy models for chat sessions.
-- [ ] Add SQLAlchemy models for chat messages.
-- [ ] Add SQLAlchemy models for agent actions.
-- [ ] Add Pydantic schemas for extracted transactions.
-- [ ] Add Pydantic schemas for API responses.
-- [ ] Add shared enum-like constants for statuses and sources.
+- [x] Add application settings with `pydantic-settings`.
+- [x] Add database engine and session helpers.
+- [x] Add SQLAlchemy base metadata.
+- [x] Add SQLAlchemy models for reconciliation jobs.
+- [x] Add SQLAlchemy models for transactions.
+- [x] Add SQLAlchemy models for matches.
+- [x] Add SQLAlchemy models for chat sessions.
+- [x] Add SQLAlchemy models for chat messages.
+- [x] Add SQLAlchemy models for agent actions.
+- [x] Add Pydantic schemas for extracted transactions.
+- [x] Add Pydantic schemas for API responses.
+- [x] Add shared enum-like constants for statuses and sources.
 
 ## Phase 5: Alembic Migrations
 
