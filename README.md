@@ -6,7 +6,7 @@ The MVP uses FastAPI, Next.js, OpenAI, Supabase Cloud, Redis, RQ, uv, Python 3.1
 
 ## Current Status
 
-Phase 4 is complete. Shared settings, database helpers, SQLAlchemy models, and Pydantic schemas are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
+Phase 5 is complete. Alembic is configured and the initial Supabase Cloud Postgres migration is applied. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
 
 ## Repository Layout
 
@@ -52,6 +52,34 @@ Verify shared SQLAlchemy metadata:
 
 ```bash
 uv run python -c "from recon_ai_core.database import Base; import recon_ai_core.models; print(sorted(Base.metadata.tables.keys()))"
+```
+
+## Database Migrations
+
+Alembic lives in `apps/api` and loads models from `packages/core`.
+
+Create a migration from SQLAlchemy models:
+
+```bash
+uv run alembic -c apps/api/alembic.ini revision --autogenerate -m "migration name"
+```
+
+Apply migrations to Supabase Cloud Postgres:
+
+```bash
+uv run alembic -c apps/api/alembic.ini upgrade head
+```
+
+Check current migration version:
+
+```bash
+uv run alembic -c apps/api/alembic.ini current
+```
+
+Verify MVP tables exist and have RLS enabled:
+
+```bash
+uv run python -c "from sqlalchemy import create_engine, text; from recon_ai_core.settings import get_settings; engine=create_engine(get_settings().database_url); print(engine.connect().execute(text(\"select c.relname, c.relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname in ('reconciliation_jobs','transactions','matches','chat_sessions','chat_messages','agent_actions') order by c.relname\")).all())"
 ```
 
 ## Supabase Cloud Setup

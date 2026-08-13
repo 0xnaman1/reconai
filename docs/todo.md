@@ -68,14 +68,14 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 5: Alembic Migrations
 
-- [ ] Configure Alembic in `apps/api`.
-- [ ] Make Alembic load environment variables from `.env`.
-- [ ] Make Alembic import SQLAlchemy metadata from `packages/core`.
-- [ ] Generate initial migration.
-- [ ] Review generated migration manually.
-- [ ] Apply migration to Supabase Cloud Postgres.
-- [ ] Verify tables exist in Supabase dashboard.
-- [ ] Add migration commands to `README.md`.
+- [x] Configure Alembic in `apps/api`.
+- [x] Make Alembic load environment variables from `.env`.
+- [x] Make Alembic import SQLAlchemy metadata from `packages/core`.
+- [x] Generate initial migration.
+- [x] Review generated migration manually.
+- [x] Apply migration to Supabase Cloud Postgres.
+- [x] Verify tables exist in Supabase dashboard.
+- [x] Add migration commands to `README.md`.
 
 ## Phase 6: FastAPI Skeleton
 
