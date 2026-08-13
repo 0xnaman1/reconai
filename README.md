@@ -6,7 +6,7 @@ The MVP uses FastAPI, Next.js, OpenAI, Supabase Cloud, Redis, RQ, uv, Python 3.1
 
 ## Current Status
 
-Phase 5 is complete. Alembic is configured and the initial Supabase Cloud Postgres migration is applied. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
+Phase 6 is complete. FastAPI skeleton, routing, CORS, database dependency, and health checks are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
 
 ## Repository Layout
 
@@ -121,6 +121,19 @@ Run the API skeleton:
 
 ```bash
 uv run uvicorn recon_ai_api.main:app --reload
+```
+
+Health checks:
+
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8000/health/db
+```
+
+Expected output:
+
+```json
+{"status":"ok"}
 ```
 
 Run the worker placeholder:

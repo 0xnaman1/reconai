@@ -79,14 +79,14 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 6: FastAPI Skeleton
 
-- [ ] Create FastAPI application entrypoint.
-- [ ] Add health check endpoint.
-- [ ] Add database session dependency.
-- [ ] Add CORS configuration for local Next.js frontend.
-- [ ] Add global error handling for expected application errors.
-- [ ] Add basic API router structure.
-- [ ] Run API locally with `uvicorn`.
-- [ ] Verify health endpoint works.
+- [x] Create FastAPI application entrypoint.
+- [x] Add health check endpoint.
+- [x] Add database session dependency.
+- [x] Add CORS configuration for local Next.js frontend.
+- [x] Add global error handling for expected application errors.
+- [x] Add basic API router structure.
+- [x] Run API locally with `uvicorn`.
+- [x] Verify health endpoint works.
 
 ## Phase 7: Worker Skeleton
 
