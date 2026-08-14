@@ -1,5 +1,6 @@
 // pyrightconfig.json
 {
   "venvPath": ".",
-  "venv": ".venv"
+  "venv": ".venv",
+  "pythonVersion": "3.14"
 }
