@@ -100,13 +100,13 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 8: Supabase Storage Integration
 
-- [ ] Add Supabase client helper in `packages/core`.
-- [ ] Add file upload helper for PDFs.
-- [ ] Add file download helper for worker processing.
-- [ ] Add predictable storage path format for reconciliation PDFs.
-- [ ] Add validation for PDF file type.
-- [ ] Verify upload to Supabase Storage manually.
-- [ ] Verify download from Supabase Storage manually.
+- [x] Add Supabase client helper in `packages/core`.
+- [x] Add file upload helper for PDFs.
+- [x] Add file download helper for worker processing.
+- [x] Add predictable storage path format for reconciliation PDFs.
+- [x] Skip PDF file type validation for MVP assumption.
+- [x] Verify upload to Supabase Storage manually.
+- [x] Verify download from Supabase Storage manually.
 
 ## Phase 9: Reconciliation Job API
 

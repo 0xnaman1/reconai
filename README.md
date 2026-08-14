@@ -6,7 +6,7 @@ The MVP uses FastAPI, Next.js, OpenAI, Supabase Cloud, Redis, RQ, uv, Python 3.1
 
 ## Current Status
 
-Phase 7 is complete. RQ worker code, Redis queue helpers, and sample job execution are verified. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
+Phase 8 is complete. Supabase Storage helpers and upload/download verification are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
 
 ## Repository Layout
 
@@ -110,6 +110,20 @@ Expected output:
 database: ok
 storage: ok
 ```
+
+Verify Supabase Storage upload/download helpers:
+
+```bash
+uv run verify-storage
+```
+
+Storage paths use this format:
+
+```text
+reconciliations/{job_id}/{bank|ledger}.pdf
+```
+
+PDF file type validation is intentionally skipped for the MVP. The app assumes uploaded files are PDFs.
 
 Start Redis:
 
