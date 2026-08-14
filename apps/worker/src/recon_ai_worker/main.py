@@ -1,9 +1,13 @@
-from recon_ai_core.settings import get_settings
+from rq import Worker
+
+from recon_ai_worker.queue import QUEUE_NAME, get_queue, get_redis_connection
 
 
 def main() -> None:
-    settings = get_settings()
-    print(f"Recon AI worker configured for Redis at {settings.redis_url}")
+    queue = get_queue()
+    worker = Worker([queue], connection=get_redis_connection())
+    print(f"Recon AI worker listening on queue: {QUEUE_NAME}")
+    worker.work()
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ The MVP uses FastAPI, Next.js, OpenAI, Supabase Cloud, Redis, RQ, uv, Python 3.1
 
 ## Current Status
 
-Phase 6 is complete. FastAPI skeleton, routing, CORS, database dependency, and health checks are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
+Phase 7 is complete. RQ worker code, Redis queue helpers, and sample job execution are verified. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
 
 ## Repository Layout
 
@@ -136,10 +136,28 @@ Expected output:
 {"status":"ok"}
 ```
 
-Run the worker placeholder:
+Verify worker imports:
 
 ```bash
-uv run python -m recon_ai_worker.main
+uv run python -c "import recon_ai_worker.jobs, recon_ai_worker.queue; print('worker imports ok')"
+```
+
+Run the RQ worker:
+
+```bash
+uv run recon-worker
+```
+
+Run one burst worker for manual verification:
+
+```bash
+uv run rq worker reconciliation --burst --url redis://localhost:6379/0
+```
+
+Enqueue a sample reconciliation job from another terminal:
+
+```bash
+uv run enqueue-sample-job
 ```
 
 The frontend is not initialized yet. Next.js setup happens in a later phase.

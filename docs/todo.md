@@ -90,13 +90,13 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 7: Worker Skeleton
 
-- [ ] Create RQ worker entrypoint.
-- [ ] Add Redis connection helper.
-- [ ] Add queue helper for reconciliation jobs.
-- [ ] Add placeholder `process_reconciliation_job(job_id)` task.
-- [ ] Run Redis locally with Docker Compose.
-- [ ] Run RQ worker locally.
-- [ ] Enqueue and execute a sample job manually.
+- [x] Create RQ worker entrypoint.
+- [x] Add Redis connection helper.
+- [x] Add queue helper for reconciliation jobs.
+- [x] Add placeholder `process_reconciliation_job(job_id)` task.
+- [x] Run Redis locally with Docker Compose.
+- [x] Run RQ worker locally.
+- [x] Enqueue and execute a sample job manually.
 
 ## Phase 8: Supabase Storage Integration
 
