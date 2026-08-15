@@ -42,6 +42,16 @@ class ReconciliationJobResponse(BaseModel):
     updated_at: datetime
 
 
+class ReconciliationCreateResponse(BaseModel):
+    job_id: uuid.UUID
+    status: JobStatus
+
+
+class ReconciliationDetailResponse(BaseModel):
+    job: ReconciliationJobResponse
+    summary: ReconciliationSummaryResponse
+
+
 class TransactionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

@@ -110,14 +110,14 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 9: Reconciliation Job API
 
-- [ ] Add `POST /reconciliations` endpoint.
-- [ ] Accept bank PDF and ledger PDF as multipart uploads.
-- [ ] Upload both PDFs to Supabase Storage.
-- [ ] Create `reconciliation_jobs` row with status `queued`.
-- [ ] Queue RQ job with the created job ID.
-- [ ] Return job ID and status.
-- [ ] Add `GET /reconciliations/{job_id}` endpoint.
-- [ ] Add job summary response fields.
+- [x] Add `POST /reconciliations` endpoint.
+- [x] Accept bank PDF and ledger PDF as multipart uploads.
+- [x] Upload both PDFs to Supabase Storage.
+- [x] Create `reconciliation_jobs` row with status `queued`.
+- [x] Queue RQ job with the created job ID.
+- [x] Return job ID and status.
+- [x] Add `GET /reconciliations/{job_id}` endpoint.
+- [x] Add job summary response fields.
 
 ## Phase 10: PDF Text Extraction
 

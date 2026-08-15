@@ -14,4 +14,5 @@ out/
 dist/
 build/
 coverage/
+samples/
 *.log

@@ -6,7 +6,7 @@ The MVP uses FastAPI, Next.js, OpenAI, Supabase Cloud, Redis, RQ, uv, Python 3.1
 
 ## Current Status
 
-Phase 8 is complete. Supabase Storage helpers and upload/download verification are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
+Phase 9 is complete. Reconciliation job upload API, Supabase Storage upload, DB job creation, and RQ enqueue wiring are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
 
 ## Repository Layout
 
@@ -149,6 +149,22 @@ Expected output:
 ```json
 {"status":"ok"}
 ```
+
+Create a reconciliation job:
+
+```bash
+curl -X POST http://localhost:8000/reconciliations \
+  -F "bank_pdf=@samples/bank_statement.pdf" \
+  -F "ledger_pdf=@samples/ledger_statement.pdf"
+```
+
+Get reconciliation job details and summary:
+
+```bash
+curl http://localhost:8000/reconciliations/{job_id}
+```
+
+The upload endpoint assumes both files are PDFs for the MVP. Redis must be reachable at `REDIS_URL` so the API can enqueue the worker job.
 
 Verify worker imports:
 
