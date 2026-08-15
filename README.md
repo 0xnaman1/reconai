@@ -154,8 +154,8 @@ Create a reconciliation job:
 
 ```bash
 curl -X POST http://localhost:8000/reconciliations \
-  -F "bank_pdf=@samples/bank_statement.pdf" \
-  -F "ledger_pdf=@samples/ledger_statement.pdf"
+  -F "bank_pdf=@samples/sample_bank_statement.pdf" \
+  -F "ledger_pdf=@samples/ledger.pdf"
 ```
 
 Get reconciliation job details and summary:
@@ -169,7 +169,7 @@ The upload endpoint assumes both files are PDFs for the MVP. Redis must be reach
 Verify worker imports:
 
 ```bash
-uv run python -c "import recon_ai_worker.jobs, recon_ai_worker.queue; print('worker imports ok')"
+uv run python -c "import recon_ai_worker.jobs, recon_ai_worker.main; print('worker imports ok')"
 ```
 
 Run the RQ worker:
