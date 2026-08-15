@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import uuid
 import logging
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, UploadFile
@@ -15,9 +15,8 @@ from recon_ai_core.schemas import (
     ReconciliationSummaryResponse,
 )
 from recon_ai_core.storage import (
-    build_reconciliation_pdf_path,
     delete_files,
-    upload_pdf_bytes,
+    upload_statement_pdf_if_missing,
 )
 from sqlalchemy import distinct, func, select
 from sqlalchemy.orm import Session
@@ -133,15 +132,21 @@ def create_reconciliation(
     session: Annotated[Session, Depends(get_db_session)],
 ) -> ReconciliationCreateResponse:
     job_id = uuid.uuid4()
-    bank_pdf_path = build_reconciliation_pdf_path(job_id, "bank")
-    ledger_pdf_path = build_reconciliation_pdf_path(job_id, "ledger")
+    bank_pdf_content = bank_pdf.file.read()
+    ledger_pdf_content = ledger_pdf.file.read()
     uploaded_paths: list[str] = []
 
     try:
-        upload_pdf_bytes(bank_pdf_path, bank_pdf.file.read())
-        uploaded_paths.append(bank_pdf_path)
-        upload_pdf_bytes(ledger_pdf_path, ledger_pdf.file.read())
-        uploaded_paths.append(ledger_pdf_path)
+        bank_pdf_path, bank_uploaded = upload_statement_pdf_if_missing(
+            bank_pdf_content, "bank"
+        )
+        if bank_uploaded:
+            uploaded_paths.append(bank_pdf_path)
+        ledger_pdf_path, ledger_uploaded = upload_statement_pdf_if_missing(
+            ledger_pdf_content, "ledger"
+        )
+        if ledger_uploaded:
+            uploaded_paths.append(ledger_pdf_path)
 
         job = ReconciliationJob(
             id=job_id,

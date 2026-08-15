@@ -1,6 +1,6 @@
 import uuid
 
-from recon_ai_worker.queue import enqueue_reconciliation_job
+from recon_ai_core.queue import enqueue_reconciliation_job
 
 
 def main() -> None:
