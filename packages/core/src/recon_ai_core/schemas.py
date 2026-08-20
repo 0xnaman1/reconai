@@ -64,7 +64,9 @@ class TransactionResponse(BaseModel):
     amount: Decimal
     currency: str | None = None
     raw_text: str | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict, alias="extra_data")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, validation_alias="extra_data"
+    )
     created_at: datetime
 
 
@@ -112,7 +114,9 @@ class ChatMessageResponse(BaseModel):
     session_id: uuid.UUID
     role: ChatRole
     content: str
-    metadata: dict[str, Any] = Field(default_factory=dict, alias="extra_data")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, validation_alias="extra_data"
+    )
     created_at: datetime
 
 

@@ -13,6 +13,7 @@ from recon_ai_core.schemas import (
     ReconciliationDetailResponse,
     ReconciliationJobResponse,
     ReconciliationSummaryResponse,
+    TransactionResponse,
 )
 from recon_ai_core.storage import upload_statement_pdf_if_missing
 from sqlalchemy import distinct, func, select
@@ -179,3 +180,24 @@ def get_reconciliation(
         job=ReconciliationJobResponse.model_validate(job),
         summary=build_reconciliation_summary(session, job),
     )
+
+
+@router.get("/{job_id}/transactions", response_model=list[TransactionResponse])
+def list_reconciliation_transactions(
+    job_id: uuid.UUID,
+    session: Annotated[Session, Depends(get_db_session)],
+) -> list[TransactionResponse]:
+    if session.get(ReconciliationJob, job_id) is None:
+        raise AppError("Reconciliation job not found", status_code=404)
+
+    transactions = session.scalars(
+        select(Transaction)
+        .where(Transaction.job_id == job_id)
+        .order_by(
+            Transaction.source,
+            Transaction.transaction_date,
+            Transaction.created_at,
+        )
+    ).all()
+
+    return [TransactionResponse.model_validate(row) for row in transactions]

@@ -142,12 +142,12 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 12: Transaction Storage
 
-- [ ] Insert extracted bank transactions with `source = "bank"`.
-- [ ] Insert extracted ledger transactions with `source = "ledger"`.
-- [ ] Store optional bank closing balance in transaction metadata.
-- [ ] Store optional ledger notes and tags in transaction metadata.
-- [ ] Ensure amounts use decimal-safe handling.
-- [ ] Add `GET /reconciliations/{job_id}/transactions` endpoint.
+- [x] Insert extracted bank transactions with `source = "bank"`.
+- [x] Insert extracted ledger transactions with `source = "ledger"`.
+- [x] Store optional bank closing balance in transaction metadata.
+- [x] Store optional ledger notes and tags in transaction metadata.
+- [x] Ensure amounts use decimal-safe handling.
+- [x] Add `GET /reconciliations/{job_id}/transactions` endpoint.
 
 ## Phase 13: Matching Engine
 

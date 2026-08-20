@@ -9,6 +9,7 @@ from recon_ai_core.extraction import ExtractionError, extract_transactions
 from recon_ai_core.models import ReconciliationJob
 from recon_ai_core.pdf import PdfExtractionError, extract_pdf_text
 from recon_ai_core.storage import download_file_bytes
+from recon_ai_core.transactions import replace_job_transactions
 
 logger = logging.getLogger(__name__)
 
@@ -69,9 +70,19 @@ def process_reconciliation_job(job_id: str) -> dict[str, object]:
         logger.exception("Failed to extract transactions for job %s", job_id)
         raise
 
+    try:
+        with session_scope() as session:
+            counts = replace_job_transactions(
+                session, parsed_job_id, bank_transactions, ledger_transactions
+            )
+    except Exception as exc:
+        _fail_job(parsed_job_id, f"Failed to store transactions: {exc}")
+        logger.exception("Failed to store transactions for job %s", job_id)
+        raise
+
     return {
         "job_id": job_id,
         "status": JobStatus.EXTRACTING.value,
-        "bank_transaction_count": len(bank_transactions),
-        "ledger_transaction_count": len(ledger_transactions),
+        "bank_transaction_count": counts[TransactionSource.BANK.value],
+        "ledger_transaction_count": counts[TransactionSource.LEDGER.value],
     }
