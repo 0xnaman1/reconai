@@ -121,13 +121,12 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 10: PDF Text Extraction
 
-- [ ] Add PDF text extraction module using `pypdf`.
-- [ ] Extract text from all pages.
-- [ ] Handle empty PDFs with a clear error.
-- [ ] Handle parser failures with a clear error.
-- [ ] Add sample PDF fixtures to `samples` if safe to commit.
-- [ ] Integrate PDF extraction into worker job.
-- [ ] Update job status to `extracting` during extraction.
+- [x] Add PDF text extraction module using `pypdf`.
+- [x] Extract text from all pages.
+- [x] Handle empty PDFs with a clear error.
+- [x] Handle parser failures with a clear error.
+- [x] Integrate PDF extraction into worker job.
+- [x] Update job status to `extracting` during extraction.
 
 ## Phase 11: OpenAI Structured Extraction
 

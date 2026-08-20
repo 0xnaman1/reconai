@@ -6,7 +6,7 @@ The MVP uses FastAPI, Next.js, OpenAI, Supabase Cloud, Redis, RQ, uv, Python 3.1
 
 ## Current Status
 
-Phase 9 is complete. Reconciliation job upload API, Supabase Storage upload, DB job creation, and RQ enqueue wiring are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
+Phase 10 is complete. Reconciliation job upload API, Supabase Storage upload, DB job creation, RQ enqueue wiring, and worker PDF text extraction are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
 
 ## Repository Layout
 

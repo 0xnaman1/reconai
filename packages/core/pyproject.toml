@@ -14,7 +14,7 @@ dependencies = [
   "redis>=6.4.0",
   "rq>=2.4.1",
   "sqlalchemy>=2.0.43",
-  "supabase>=2.18.1"
+  "supabase>=2.18.1",
 ]
 
 [project.scripts]
