@@ -130,15 +130,15 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 11: OpenAI Structured Extraction
 
-- [ ] Add OpenAI client helper.
-- [ ] Add bank transaction extraction prompt.
-- [ ] Add ledger transaction extraction prompt.
-- [ ] Define strict structured output schema.
-- [ ] Parse OpenAI response into Pydantic models.
-- [ ] Validate bank withdrawal/deposit signed amount normalization.
-- [ ] Validate ledger signed amount normalization.
-- [ ] Add helpful failure handling for malformed LLM output.
-- [ ] Store raw transaction text when available.
+- [x] Add OpenAI client helper.
+- [x] Add bank transaction extraction prompt.
+- [x] Add ledger transaction extraction prompt.
+- [x] Define strict structured output schema.
+- [x] Parse OpenAI response into Pydantic models.
+- [x] Validate bank withdrawal/deposit signed amount normalization.
+- [x] Validate ledger signed amount normalization.
+- [x] Add helpful failure handling for malformed LLM output.
+- [x] Store raw transaction text when available.
 
 ## Phase 12: Transaction Storage
 

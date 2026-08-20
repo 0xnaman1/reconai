@@ -3,8 +3,9 @@ from __future__ import annotations
 import logging
 import uuid
 
-from recon_ai_core.constants import JobStatus
+from recon_ai_core.constants import JobStatus, TransactionSource
 from recon_ai_core.database import session_scope
+from recon_ai_core.extraction import ExtractionError, extract_transactions
 from recon_ai_core.models import ReconciliationJob
 from recon_ai_core.pdf import PdfExtractionError, extract_pdf_text
 from recon_ai_core.storage import download_file_bytes
@@ -56,9 +57,21 @@ def process_reconciliation_job(job_id: str) -> dict[str, object]:
         logger.exception("Failed to read statement PDFs for job %s", job_id)
         raise
 
+    try:
+        bank_transactions = extract_transactions(bank_text, TransactionSource.BANK)
+        ledger_transactions = extract_transactions(ledger_text, TransactionSource.LEDGER)
+    except ExtractionError as exc:
+        _fail_job(parsed_job_id, str(exc))
+        logger.warning("Transaction extraction failed for job %s: %s", job_id, exc)
+        raise
+    except Exception as exc:
+        _fail_job(parsed_job_id, f"Failed to extract transactions: {exc}")
+        logger.exception("Failed to extract transactions for job %s", job_id)
+        raise
+
     return {
         "job_id": job_id,
         "status": JobStatus.EXTRACTING.value,
-        "bank_text_length": len(bank_text),
-        "ledger_text_length": len(ledger_text),
+        "bank_transaction_count": len(bank_transactions),
+        "ledger_transaction_count": len(ledger_transactions),
     }
