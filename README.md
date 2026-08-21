@@ -6,7 +6,7 @@ The MVP uses FastAPI, Next.js, OpenAI, Supabase Cloud, Redis, RQ, uv, Python 3.1
 
 ## Current Status
 
-Phase 14 is complete. Reconciliation job upload API, Supabase Storage upload, DB job creation, RQ enqueue wiring, worker PDF text extraction, OpenAI structured transaction extraction, transaction storage, the deterministic matching engine, and the match review API are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
+Phase 15 is complete. Reconciliation job upload API, Supabase Storage upload, DB job creation, RQ enqueue wiring, worker PDF text extraction, OpenAI structured transaction extraction, transaction storage, the deterministic matching engine, the match review API, and the chat data model API are in place. See `docs/architecture.md` and `docs/todo.md` for the implementation plan.
 
 ## Repository Layout
 

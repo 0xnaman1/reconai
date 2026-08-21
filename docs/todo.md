@@ -176,13 +176,13 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 15: Chat Data Model API
 
-- [ ] Add `POST /chat/sessions` endpoint.
-- [ ] Add `GET /chat/sessions/{session_id}/messages` endpoint.
-- [ ] Add `POST /chat/sessions/{session_id}/messages` endpoint.
-- [ ] Persist user messages.
-- [ ] Persist assistant messages.
-- [ ] Persist tool messages.
-- [ ] Track active reconciliation job on chat session.
+- [x] Add `POST /chat/sessions` endpoint.
+- [x] Add `GET /chat/sessions/{session_id}/messages` endpoint.
+- [x] Add `POST /chat/sessions/{session_id}/messages` endpoint.
+- [x] Persist user messages.
+- [x] Persist assistant messages.
+- [x] Persist tool messages.
+- [x] Track active reconciliation job on chat session.
 
 ## Phase 16: Agent Tool Layer
 

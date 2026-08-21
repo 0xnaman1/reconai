@@ -98,6 +98,16 @@ class ReconciliationSummaryResponse(BaseModel):
     unmatched_ledger_count: int = 0
 
 
+class ChatSessionCreateRequest(BaseModel):
+    active_job_id: uuid.UUID | None = None
+
+
+class ChatMessageCreateRequest(BaseModel):
+    role: ChatRole
+    content: str = Field(min_length=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
 class ChatSessionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
