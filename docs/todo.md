@@ -199,15 +199,15 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 17: OpenAI Chat Agent
 
-- [ ] Add chat agent system prompt.
-- [ ] Register backend tools with OpenAI tool calling.
-- [ ] Implement agent orchestration loop.
-- [ ] Execute requested tools server-side.
-- [ ] Persist assistant responses.
-- [ ] Persist tool call results.
-- [ ] Make the agent explain job status clearly.
-- [ ] Make the agent present under-review matches clearly.
-- [ ] Make the agent ask for approval or rejection when needed.
+- [x] Add chat agent system prompt.
+- [x] Register backend tools with OpenAI tool calling.
+- [x] Implement agent orchestration loop.
+- [x] Execute requested tools server-side.
+- [x] Persist assistant responses.
+- [x] Persist tool call results.
+- [x] Make the agent explain job status clearly.
+- [x] Make the agent present under-review matches clearly.
+- [x] Make the agent ask for approval or rejection when needed.
 
 ## Phase 18: Next.js Frontend Bootstrap
 

@@ -5,6 +5,8 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from recon_ai_core.agent import AgentError, run_agent_turn
+from recon_ai_core.constants import ChatRole
 from recon_ai_core.models import ChatMessage, ChatSession, ReconciliationJob
 from recon_ai_core.schemas import (
     ChatMessageCreateRequest,
@@ -79,18 +81,29 @@ def list_chat_messages(
     return [ChatMessageResponse.model_validate(row) for row in messages]
 
 
-@router.post("/sessions/{session_id}/messages", response_model=ChatMessageResponse)
+@router.post(
+    "/sessions/{session_id}/messages", response_model=list[ChatMessageResponse]
+)
 def create_chat_message(
     session_id: uuid.UUID,
     payload: ChatMessageCreateRequest,
     session: Annotated[Session, Depends(get_db_session)],
-) -> ChatMessageResponse:
-    """Append one message to a session.
+) -> list[ChatMessageResponse]:
+    """Append a message and, for a user message, run the agent's reply.
 
-    This only persists the message. Generating an assistant reply belongs to the
-    agent, so a user message stored here does not produce an answer yet.
+    A user message returns everything the turn appended: the message itself, any
+    tool calls the agent made with their results, and the final answer. Other
+    roles are stored as given, which is how a caller seeds a conversation
+    without invoking the agent.
     """
     _load_session(session, session_id)
+
+    if payload.role is ChatRole.USER:
+        try:
+            appended = run_agent_turn(session, session_id, payload.content)
+        except AgentError as exc:
+            raise AppError(str(exc), status_code=502) from exc
+        return [ChatMessageResponse.model_validate(row) for row in appended]
 
     message = ChatMessage(
         session_id=session_id,
@@ -102,4 +115,4 @@ def create_chat_message(
     session.commit()
     session.refresh(message)
 
-    return ChatMessageResponse.model_validate(message)
+    return [ChatMessageResponse.model_validate(message)]
