@@ -151,19 +151,19 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 13: Matching Engine
 
-- [ ] Implement exact amount matching.
-- [ ] Implement date exact match scoring.
-- [ ] Implement date tolerance scoring.
-- [ ] Implement reference number scoring.
-- [ ] Implement description similarity scoring with `rapidfuzz`.
-- [ ] Implement one-to-one best candidate selection.
-- [ ] Store auto matches with status `matched`.
-- [ ] Store review matches with status `under_review`.
-- [ ] Leave low-confidence transactions unmatched.
-- [ ] Store clear match reasons.
-- [ ] Integrate matching engine into worker job.
-- [ ] Update job status to `matching` during matching.
-- [ ] Update job status to `completed` after matching.
+- [x] Implement exact amount matching.
+- [x] Implement date exact match scoring.
+- [x] Implement date tolerance scoring.
+- [x] Implement reference number scoring.
+- [x] Implement description similarity scoring with `rapidfuzz`.
+- [x] Implement one-to-one best candidate selection.
+- [x] Store auto matches with status `matched`.
+- [x] Store review matches with status `under_review`.
+- [x] Leave low-confidence transactions unmatched.
+- [x] Store clear match reasons.
+- [x] Integrate matching engine into worker job.
+- [x] Update job status to `matching` during matching.
+- [x] Update job status to `completed` after matching.
 
 ## Phase 14: Review API
 

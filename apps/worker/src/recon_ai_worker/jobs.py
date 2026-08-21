@@ -6,6 +6,7 @@ import uuid
 from recon_ai_core.constants import JobStatus, TransactionSource
 from recon_ai_core.database import session_scope
 from recon_ai_core.extraction import ExtractionError, extract_transactions
+from recon_ai_core.matching import replace_job_matches
 from recon_ai_core.models import ReconciliationJob
 from recon_ai_core.pdf import PdfExtractionError, extract_pdf_text
 from recon_ai_core.storage import download_file_bytes
@@ -80,9 +81,21 @@ def process_reconciliation_job(job_id: str) -> dict[str, object]:
         logger.exception("Failed to store transactions for job %s", job_id)
         raise
 
+    _set_job_status(parsed_job_id, JobStatus.MATCHING)
+    try:
+        with session_scope() as session:
+            match_counts = replace_job_matches(session, parsed_job_id)
+    except Exception as exc:
+        _fail_job(parsed_job_id, f"Failed to match transactions: {exc}")
+        logger.exception("Failed to match transactions for job %s", job_id)
+        raise
+
+    _set_job_status(parsed_job_id, JobStatus.COMPLETED)
+
     return {
         "job_id": job_id,
-        "status": JobStatus.EXTRACTING.value,
+        "status": JobStatus.COMPLETED.value,
         "bank_transaction_count": counts[TransactionSource.BANK.value],
         "ledger_transaction_count": counts[TransactionSource.LEDGER.value],
+        **match_counts,
     }

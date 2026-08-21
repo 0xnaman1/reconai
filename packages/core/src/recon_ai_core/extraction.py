@@ -82,6 +82,10 @@ LEDGER_PROMPT = (
     "Keep the amount signed as the ledger presents it: negative for money out, "
     "positive for money in. Put the transaction details in description and any notes "
     "or tags in notes_and_tags.\n\n"
+    "Ledgers often carry the bank reference inside the notes rather than in its own "
+    "column, labelled Ref, Reference, Cheque, or Document number. When a row contains "
+    "such an identifier, copy it into reference_number as the bare identifier without "
+    "its label, and still keep the full original notes text in notes_and_tags.\n\n"
     "Ledger statement text:\n\n{text}"
 )
 
