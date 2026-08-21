@@ -211,14 +211,14 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 18: Next.js Frontend Bootstrap
 
-- [ ] Create Next.js app in `apps/web`.
-- [ ] Configure TypeScript.
-- [ ] Configure Tailwind CSS.
-- [ ] Add API client helper.
-- [ ] Add environment variable for backend URL.
-- [ ] Create base layout.
-- [ ] Create home page.
-- [ ] Verify frontend runs locally.
+- [x] Create Next.js app in `apps/web`.
+- [x] Configure TypeScript.
+- [x] Configure Tailwind CSS.
+- [x] Add API client helper.
+- [x] Add environment variable for backend URL.
+- [x] Create base layout.
+- [x] Create home page.
+- [x] Verify frontend runs locally.
 
 ## Phase 19: Chat UI
 
