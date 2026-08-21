@@ -8,7 +8,10 @@ RECONCILIATION_JOB_TARGET = "recon_ai_worker.jobs.process_reconciliation_job"
 
 
 def get_redis_connection() -> Redis:
-    return Redis.from_url(get_settings().redis_url)
+    # Bound the connect attempt so an unreachable Redis fails fast instead of
+    # hanging whoever is enqueueing. Only the connect is bounded: the worker's
+    # blocking pop needs reads to wait indefinitely.
+    return Redis.from_url(get_settings().redis_url, socket_connect_timeout=5)
 
 
 def get_reconciliation_queue() -> Queue:

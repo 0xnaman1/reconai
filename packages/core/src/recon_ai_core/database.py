@@ -28,7 +28,15 @@ def get_engine() -> Engine:
     settings = get_settings()
     if not settings.database_url:
         raise RuntimeError("DATABASE_URL is not configured")
-    return create_engine(settings.database_url, pool_pre_ping=True)
+    # Supabase's transaction pooler hands each transaction whatever backend
+    # connection is free, so a prepared statement created on one can collide
+    # with a different session's on another ("prepared statement _pg3_0 already
+    # exists"). Disabling them keeps the pooler usable.
+    return create_engine(
+        settings.database_url,
+        pool_pre_ping=True,
+        connect_args={"prepare_threshold": None},
+    )
 
 
 @lru_cache
