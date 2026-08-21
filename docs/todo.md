@@ -186,16 +186,16 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 16: Agent Tool Layer
 
-- [ ] Implement `create_reconciliation_job` tool.
-- [ ] Implement `get_reconciliation_status` tool.
-- [ ] Implement `get_reconciliation_summary` tool.
-- [ ] Implement `list_under_review_matches` tool.
-- [ ] Implement `approve_match` tool.
-- [ ] Implement `reject_match` tool.
-- [ ] Implement `list_unmatched_transactions` tool.
-- [ ] Log tool calls to `agent_actions`.
-- [ ] Ensure tools use controlled inputs only.
-- [ ] Do not add raw SQL tool in MVP.
+- [x] Implement `create_reconciliation_job` tool.
+- [x] Implement `get_reconciliation_status` tool.
+- [x] Implement `get_reconciliation_summary` tool.
+- [x] Implement `list_under_review_matches` tool.
+- [x] Implement `approve_match` tool.
+- [x] Implement `reject_match` tool.
+- [x] Implement `list_unmatched_transactions` tool.
+- [x] Log tool calls to `agent_actions`.
+- [x] Ensure tools use controlled inputs only.
+- [x] Do not add raw SQL tool in MVP.
 
 ## Phase 17: OpenAI Chat Agent
 

@@ -5,10 +5,11 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, UploadFile
-from recon_ai_core.constants import JobStatus, MatchStatus, TransactionSource
+from recon_ai_core.constants import JobStatus, MatchStatus
 from recon_ai_core.matching import replace_job_matches
 from recon_ai_core.models import Match, ReconciliationJob, Transaction
 from recon_ai_core.queue import enqueue_reconciliation_job
+from recon_ai_core.reporting import build_reconciliation_summary
 from recon_ai_core.schemas import (
     MatchResponse,
     ReconciliationCreateResponse,
@@ -18,7 +19,7 @@ from recon_ai_core.schemas import (
     TransactionResponse,
 )
 from recon_ai_core.storage import upload_statement_pdf_if_missing
-from sqlalchemy import distinct, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from recon_ai_api.dependencies import get_db_session
@@ -26,103 +27,6 @@ from recon_ai_api.errors import AppError
 
 router = APIRouter(prefix="/reconciliations", tags=["reconciliations"])
 logger = logging.getLogger(__name__)
-
-
-def build_reconciliation_summary(
-    session: Session, job: ReconciliationJob
-) -> ReconciliationSummaryResponse:
-    bank_count = (
-        session.scalar(
-            select(func.count(Transaction.id)).where(
-                Transaction.job_id == job.id,
-                Transaction.source == TransactionSource.BANK.value,
-            )
-        )
-        or 0
-    )
-    ledger_count = (
-        session.scalar(
-            select(func.count(Transaction.id)).where(
-                Transaction.job_id == job.id,
-                Transaction.source == TransactionSource.LEDGER.value,
-            )
-        )
-        or 0
-    )
-
-    matched_count = (
-        session.scalar(
-            select(func.count(Match.id)).where(
-                Match.job_id == job.id,
-                Match.status == MatchStatus.MATCHED.value,
-            )
-        )
-        or 0
-    )
-    under_review_count = (
-        session.scalar(
-            select(func.count(Match.id)).where(
-                Match.job_id == job.id,
-                Match.status == MatchStatus.UNDER_REVIEW.value,
-            )
-        )
-        or 0
-    )
-    reconciled_count = (
-        session.scalar(
-            select(func.count(Match.id)).where(
-                Match.job_id == job.id,
-                Match.status == MatchStatus.RECONCILED.value,
-            )
-        )
-        or 0
-    )
-    rejected_count = (
-        session.scalar(
-            select(func.count(Match.id)).where(
-                Match.job_id == job.id,
-                Match.status == MatchStatus.REJECTED.value,
-            )
-        )
-        or 0
-    )
-
-    active_statuses = [
-        MatchStatus.MATCHED.value,
-        MatchStatus.UNDER_REVIEW.value,
-        MatchStatus.RECONCILED.value,
-    ]
-    matched_bank_count = (
-        session.scalar(
-            select(func.count(distinct(Match.bank_transaction_id))).where(
-                Match.job_id == job.id,
-                Match.status.in_(active_statuses),
-            )
-        )
-        or 0
-    )
-    matched_ledger_count = (
-        session.scalar(
-            select(func.count(distinct(Match.ledger_transaction_id))).where(
-                Match.job_id == job.id,
-                Match.status.in_(active_statuses),
-            )
-        )
-        or 0
-    )
-
-    return ReconciliationSummaryResponse(
-        job_id=job.id,
-        status=JobStatus(job.status),
-        bank_transaction_count=bank_count,
-        ledger_transaction_count=ledger_count,
-        matched_count=matched_count,
-        under_review_count=under_review_count,
-        reconciled_count=reconciled_count,
-        rejected_count=rejected_count,
-        unmatched_bank_count=max(bank_count - matched_bank_count, 0),
-        unmatched_ledger_count=max(ledger_count - matched_ledger_count, 0),
-    )
 
 
 @router.post("", response_model=ReconciliationCreateResponse)
