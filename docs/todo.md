@@ -167,12 +167,12 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 14: Review API
 
-- [ ] Add `GET /reconciliations/{job_id}/matches` endpoint.
-- [ ] Add filtering by match status.
-- [ ] Add `POST /matches/{match_id}/approve` endpoint.
-- [ ] Add `POST /matches/{match_id}/reject` endpoint.
-- [ ] Make approve set match status to `reconciled`.
-- [ ] Make reject set match status to `rejected`.
+- [x] Add `GET /reconciliations/{job_id}/matches` endpoint.
+- [x] Add filtering by match status.
+- [x] Add `POST /matches/{match_id}/approve` endpoint.
+- [x] Add `POST /matches/{match_id}/reject` endpoint.
+- [x] Make approve set match status to `reconciled`.
+- [x] Make reject set match status to `rejected`.
 
 ## Phase 15: Chat Data Model API
 

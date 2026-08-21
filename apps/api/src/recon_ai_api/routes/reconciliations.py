@@ -10,6 +10,7 @@ from recon_ai_core.matching import replace_job_matches
 from recon_ai_core.models import Match, ReconciliationJob, Transaction
 from recon_ai_core.queue import enqueue_reconciliation_job
 from recon_ai_core.schemas import (
+    MatchResponse,
     ReconciliationCreateResponse,
     ReconciliationDetailResponse,
     ReconciliationJobResponse,
@@ -191,7 +192,11 @@ def rematch_reconciliation(
     """Re-run the matching engine over transactions already stored for a job.
 
     Matching is deterministic and reads no external service, so it runs inline
-    rather than through the queue. Existing matches are discarded and rebuilt.
+    rather than through the queue.
+
+    Every existing match is discarded and rebuilt, including matches a reviewer
+    already approved or rejected. Re-running matching means those review
+    decisions have to be made again.
     """
     job = session.get(ReconciliationJob, job_id)
     if job is None:
@@ -221,6 +226,31 @@ def rematch_reconciliation(
         raise AppError("Failed to rematch reconciliation job", status_code=500) from exc
 
     return build_reconciliation_summary(session, job)
+
+
+@router.get("/{job_id}/matches", response_model=list[MatchResponse])
+def list_reconciliation_matches(
+    job_id: uuid.UUID,
+    session: Annotated[Session, Depends(get_db_session)],
+    status: MatchStatus | None = None,
+) -> list[MatchResponse]:
+    """List matches for a job, most confident first.
+
+    Pass status to narrow the list, for example status=under_review to fetch the
+    queue a reviewer still has to decide on.
+    """
+    if session.get(ReconciliationJob, job_id) is None:
+        raise AppError("Reconciliation job not found", status_code=404)
+
+    query = select(Match).where(Match.job_id == job_id)
+    if status is not None:
+        query = query.where(Match.status == status.value)
+
+    matches = session.scalars(
+        query.order_by(Match.confidence_score.desc(), Match.created_at)
+    ).all()
+
+    return [MatchResponse.model_validate(row) for row in matches]
 
 
 @router.get("/{job_id}/transactions", response_model=list[TransactionResponse])
