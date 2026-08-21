@@ -222,16 +222,16 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 19: Chat UI
 
-- [ ] Build chat transcript component.
-- [ ] Build message input component.
-- [ ] Build file upload component for bank PDF.
-- [ ] Build file upload component for ledger PDF.
-- [ ] Allow upload submission from chat.
-- [ ] Create chat session on first load.
-- [ ] Send user messages to backend.
-- [ ] Render assistant responses.
-- [ ] Render loading and processing states.
-- [ ] Handle API errors in the UI.
+- [x] Build chat transcript component.
+- [x] Build message input component.
+- [x] Build file upload component for bank PDF.
+- [x] Build file upload component for ledger PDF.
+- [x] Allow upload submission from chat.
+- [x] Create chat session on first load.
+- [x] Send user messages to backend.
+- [x] Render assistant responses.
+- [x] Render loading and processing states.
+- [x] Handle API errors in the UI.
 
 ## Phase 20: Reconciliation Review UI
 
