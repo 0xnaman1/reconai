@@ -2,6 +2,8 @@
 
 Recon AI reconciles a bank statement against a general ledger, and lets you argue with the result.
 
+<img width="1511" height="1046" alt="Image" src="https://github.com/user-attachments/assets/b2aca086-a6b9-4acf-91a5-c2e5465c2007" />
+
 Upload two PDFs. It reads both, matches what it can defend, and hands you the rest: the pairs it was not confident enough to assert on its own, and the transactions it could not pair at all. You work through those in the UI or by asking the assistant about them in plain English.
 
 The matching is deterministic. The language model reads PDFs and talks to you; it never decides what matches what.
