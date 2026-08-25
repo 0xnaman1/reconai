@@ -19,18 +19,46 @@ function unmatched(transactions: Transaction[], matches: Match[]): Transaction[]
 
 function TransactionRow({ transaction }: { transaction: Transaction }) {
   return (
-    <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border py-2 last:border-0">
+    <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-3 last:border-0">
       <span className="text-sm">{transaction.description}</span>
       <span className="text-xs text-muted">
         {formatDate(transaction.transaction_date)}
-        {transaction.reference_number
-          ? ` · ref ${transaction.reference_number}`
-          : ""}
+        {transaction.reference_number ? (
+          <>
+            {" · "}
+            <span className="font-mono">{transaction.reference_number}</span>
+          </>
+        ) : null}
       </span>
-      <span className="text-sm font-medium tabular-nums">
+      <span className="numeric text-sm font-medium">
         {formatAmount(transaction.amount, transaction.currency)}
       </span>
     </li>
+  );
+}
+
+function UnmatchedSection({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: Transaction[];
+}) {
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-sm font-medium">
+        {title} <span className="numeric text-muted">({rows.length})</span>
+      </h2>
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted">Everything matched.</p>
+      ) : (
+        <ul className="card overflow-hidden">
+          {rows.map((row) => (
+            <TransactionRow key={row.id} transaction={row} />
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -52,8 +80,8 @@ export default async function ReconciliationPage(
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-baseline justify-between gap-2">
-        <h1 className="text-lg font-semibold tracking-tight">Reconciliation</h1>
-        <Link href="/" className="text-sm text-muted underline">
+        <h1 className="text-xl font-semibold tracking-tight">Reconciliation</h1>
+        <Link href="/" className="text-sm text-accent hover:underline">
           Back to chat
         </Link>
       </div>
@@ -63,35 +91,9 @@ export default async function ReconciliationPage(
         errorMessage={detail.job.error_message}
       />
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">
-          Unmatched bank transactions ({bank.length})
-        </h2>
-        {bank.length === 0 ? (
-          <p className="text-sm text-muted">Everything matched.</p>
-        ) : (
-          <ul>
-            {bank.map((row) => (
-              <TransactionRow key={row.id} transaction={row} />
-            ))}
-          </ul>
-        )}
-      </section>
+      <UnmatchedSection title="Unmatched bank transactions" rows={bank} />
+      <UnmatchedSection title="Unmatched ledger transactions" rows={ledger} />
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">
-          Unmatched ledger transactions ({ledger.length})
-        </h2>
-        {ledger.length === 0 ? (
-          <p className="text-sm text-muted">Everything matched.</p>
-        ) : (
-          <ul>
-            {ledger.map((row) => (
-              <TransactionRow key={row.id} transaction={row} />
-            ))}
-          </ul>
-        )}
-      </section>
     </div>
   );
 }

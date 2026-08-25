@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { formatDate, formatJobStatus } from "@/lib/format";
+import { StatusBadge } from "@/components/status-badge";
+import { formatDate } from "@/lib/format";
 import type { ReconciliationJob } from "@/lib/types";
 
 /** Copy a job id so it can be pasted into the chat or another tool. */
@@ -28,9 +29,12 @@ function CopyId({ jobId }: { jobId: string }) {
       }}
       title={jobId}
       aria-label={`Copy job id ${jobId}`}
-      className="font-mono text-xs text-muted underline decoration-dotted underline-offset-2"
+      className="group flex items-center gap-1.5 self-start font-mono text-xs text-muted hover:text-foreground"
     >
-      {copied ? "copied" : jobId}
+      <span className="truncate">{jobId}</span>
+      <span className="shrink-0 text-[0.65rem] uppercase tracking-wide opacity-0 transition-opacity group-hover:opacity-100">
+        {copied ? "copied" : "copy"}
+      </span>
     </button>
   );
 }
@@ -47,14 +51,16 @@ export function JobList({
   if (jobs.length === 0) return null;
 
   return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium">Your reconciliations</h2>
-      <p className="text-xs text-muted">
-        Pick one to work on it. The assistant answers about whichever is
-        selected, so you only need the id to ask about a different one.
-      </p>
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-sm font-medium">Your reconciliations</h2>
+        <p className="text-xs leading-relaxed text-muted">
+          Pick one to work on it. The assistant answers about whichever is
+          selected, so you only need the id to ask about a different one.
+        </p>
+      </div>
 
-      <ul className="flex flex-col gap-2">
+      <ul className="grid gap-2 sm:grid-cols-2">
         {jobs.map((job) => {
           const active = job.id === activeJobId;
           return (
@@ -62,6 +68,7 @@ export function JobList({
               <div
                 role="button"
                 tabIndex={0}
+                aria-pressed={active}
                 onClick={() => onSelect(job.id)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
@@ -69,17 +76,17 @@ export function JobList({
                     onSelect(job.id);
                   }
                 }}
-                className={`flex cursor-pointer flex-col gap-1 rounded-lg border p-3 ${
-                  active ? "border-foreground" : "border-border"
+                className={`flex cursor-pointer flex-col gap-2 rounded-xl border p-3.5 transition-colors ${
+                  active
+                    ? "border-accent bg-surface shadow-[0_0_0_1px_var(--accent)]"
+                    : "border-border bg-surface hover:border-border-strong"
                 }`}
               >
-                <div className="flex items-baseline justify-between gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-medium">
                     {formatDate(job.created_at)}
                   </span>
-                  <span className="text-xs text-muted">
-                    {formatJobStatus(job.status)}
-                  </span>
+                  <StatusBadge status={job.status} />
                 </div>
                 <CopyId jobId={job.id} />
               </div>

@@ -20,19 +20,22 @@ export function MessageInput({
   }
 
   return (
-    <form onSubmit={submit} className="flex gap-2">
+    <form
+      onSubmit={submit}
+      className="sticky bottom-0 flex gap-2 bg-background/85 py-3 backdrop-blur"
+    >
       <input
         value={value}
         onChange={(event) => setValue(event.target.value)}
         disabled={disabled}
         placeholder="Ask about the reconciliation…"
         aria-label="Message"
-        className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground disabled:opacity-50"
+        className="field flex-1"
       />
       <button
         type="submit"
         disabled={disabled || !value.trim()}
-        className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-40"
+        className="btn btn-primary"
       >
         Send
       </button>

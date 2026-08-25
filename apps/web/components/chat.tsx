@@ -26,9 +26,11 @@ import type { ChatMessage, ReconciliationJob } from "@/lib/types";
 
 const POLL_INTERVAL_MS = 2000;
 
-const WELCOME =
-  "Upload a bank statement and a general ledger PDF, and I'll reconcile them. " +
-  "I'll match what I can confidently, and ask you about anything I'm unsure of.";
+const SUGGESTIONS = [
+  "How did it go?",
+  "What's still unmatched?",
+  "What needs my review?",
+];
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
@@ -215,8 +217,10 @@ export function Chat() {
     );
   }
 
+  const empty = messages.length === 0;
+
   return (
-    <div className="flex flex-1 flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-6">
       <StatementUpload onSubmit={upload} disabled={uploading || !sessionId} />
 
       <JobList
@@ -228,7 +232,7 @@ export function Chat() {
       {error && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/40 bg-red-500/5 px-4 py-2.5 text-sm"
+          className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
         >
           {error}
         </div>
@@ -242,9 +246,30 @@ export function Chat() {
         />
       )}
 
-      <div className="flex-1">
-        {messages.length === 0 ? (
-          <p className="text-sm text-muted">{WELCOME}</p>
+      <div className="flex flex-1 flex-col gap-3">
+        {empty ? (
+          <div className="flex flex-col gap-3 py-2">
+            <p className="text-sm leading-relaxed text-muted">
+              Upload a bank statement and a general ledger PDF, and I&apos;ll
+              reconcile them. I match what I can defend, and ask you about
+              anything I&apos;m unsure of.
+            </p>
+            {activeJob && (
+              <div className="flex flex-wrap gap-2">
+                {SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => void send(suggestion)}
+                    disabled={thinking}
+                    className="btn btn-ghost"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
           <ChatTranscript messages={messages} pending={thinking} />
         )}

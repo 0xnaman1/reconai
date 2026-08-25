@@ -18,14 +18,28 @@ function Bubble({ message }: { message: ChatMessage }) {
   return (
     <div className={`flex ${fromUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[85%] whitespace-pre-wrap rounded-lg px-4 py-2.5 text-sm ${
+        className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
           fromUser
-            ? "bg-foreground text-background"
-            : "border border-border bg-surface"
+            ? "rounded-br-md bg-accent text-accent-foreground"
+            : "card rounded-bl-md"
         }`}
       >
         {message.content}
       </div>
+    </div>
+  );
+}
+
+/** What the agent did, shown quietly: useful to see, not meant to be read. */
+function ToolTrace({ tools }: { tools: string[] }) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 px-1">
+      <span className="text-xs text-muted">Looked up</span>
+      {tools.map((tool, index) => (
+        <span key={`${tool}-${index}`} className="badge badge-neutral font-mono">
+          {tool}
+        </span>
+      ))}
     </div>
   );
 }
@@ -51,11 +65,7 @@ export function ChatTranscript({
 
         const tools = toolNames(message);
         if (tools.length > 0) {
-          return (
-            <p key={message.id} className="text-xs text-muted">
-              Looked up {tools.join(", ")}
-            </p>
-          );
+          return <ToolTrace key={message.id} tools={tools} />;
         }
 
         if (!message.content.trim()) return null;
@@ -63,7 +73,7 @@ export function ChatTranscript({
       })}
 
       {pending && (
-        <p className="text-xs text-muted" aria-live="polite">
+        <p className="px-1 text-xs text-muted" aria-live="polite">
           Thinking…
         </p>
       )}

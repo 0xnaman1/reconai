@@ -26,14 +26,16 @@ function TabButton({
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-        active
-          ? "bg-foreground text-background"
-          : "border border-border text-muted"
-      }`}
+      className="tab"
     >
       {label}
-      <span className="ml-1.5 tabular-nums">{count}</span>
+      <span
+        className={`badge numeric ${
+          count === 0 ? "badge-neutral" : "badge-accent"
+        }`}
+      >
+        {count}
+      </span>
     </button>
   );
 }
@@ -89,7 +91,7 @@ export function JobPanel({
 
   if (error) {
     return (
-      <p role="alert" className="text-sm text-red-500">
+      <p role="alert" className="text-sm text-danger">
         {error}
       </p>
     );
@@ -113,7 +115,7 @@ export function JobPanel({
 
       {summary.status === "completed" && (
         <>
-          <div role="tablist" className="flex gap-2">
+          <div role="tablist" className="card-quiet flex gap-1 p-1">
             <TabButton
               active={tab === "review"}
               count={summary.under_review_count}

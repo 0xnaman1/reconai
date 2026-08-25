@@ -1,35 +1,223 @@
 @import "tailwindcss";
 
+/* Warm neutrals rather than pure grey, so long reading sessions are easier on
+   the eye, with a single teal accent reserved for actions and the selected
+   state. Green, amber and red are semantic only: matched, waiting, wrong. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --surface: #f9fafb;
+  --background: #fbfaf8;
+  --surface: #ffffff;
+  --elevated: #f4f2ee;
+  --foreground: #191817;
+  --muted: #75706a;
+  --border: #e7e3dc;
+  --border-strong: #d5cfc5;
+
+  --accent: #0f766e;
+  --accent-hover: #0b5c55;
+  --accent-foreground: #ffffff;
+
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #b42318;
+
+  --shadow-card: 0 1px 2px rgb(25 24 23 / 0.04), 0 12px 28px -18px rgb(25 24 23 / 0.25);
+  --shadow-raised: 0 1px 2px rgb(25 24 23 / 0.06), 0 18px 40px -24px rgb(25 24 23 / 0.35);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --muted: #9ca3af;
-    --border: #262626;
-    --surface: #141414;
+    --background: #0c0d0d;
+    --surface: #151717;
+    --elevated: #1e2121;
+    --foreground: #ecebe8;
+    --muted: #9b968e;
+    --border: #292c2c;
+    --border-strong: #3a3e3e;
+
+    --accent: #2dd4bf;
+    --accent-hover: #5eead4;
+    --accent-foreground: #062421;
+
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #fb7185;
+
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.5), 0 12px 28px -18px rgb(0 0 0 / 0.8);
+    --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.6), 0 18px 40px -24px rgb(0 0 0 / 0.9);
   }
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --color-surface: var(--surface);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "cv05", "ss01";
+}
+
+/* Numbers that change in place — counts, scores, amounts — are lined and
+   tabular so a digit flipping does not shift everything beside it. */
+.numeric {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  box-shadow: var(--shadow-card);
+}
+
+.card-quiet {
+  background: var(--elevated);
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease, opacity 120ms ease;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-ghost {
+  border: 1px solid var(--border-strong);
+  color: var(--foreground);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--elevated);
+}
+
+.btn-danger {
+  border: 1px solid color-mix(in oklab, var(--danger) 35%, transparent);
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--danger) 10%, transparent);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.badge-neutral {
+  background: var(--elevated);
+  color: var(--muted);
+}
+
+.badge-accent {
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.badge-success {
+  background: color-mix(in oklab, var(--success) 14%, transparent);
+  color: var(--success);
+}
+
+.badge-warning {
+  background: color-mix(in oklab, var(--warning) 16%, transparent);
+  color: var(--warning);
+}
+
+.badge-danger {
+  background: color-mix(in oklab, var(--danger) 14%, transparent);
+  color: var(--danger);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.625rem;
+  border: 1px solid transparent;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.tab:hover {
+  color: var(--foreground);
+}
+
+.tab[aria-selected="true"] {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--foreground);
+  box-shadow: var(--shadow-card);
+}
+
+.field {
+  width: 100%;
+  border-radius: 0.625rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+
+.field:disabled {
+  opacity: 0.55;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

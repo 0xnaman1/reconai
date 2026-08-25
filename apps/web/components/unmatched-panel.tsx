@@ -114,7 +114,7 @@ export function UnmatchedPanel({
       {error && (
         <div
           role="alert"
-          className="rounded-lg border border-red-500/40 bg-red-500/5 px-4 py-2.5 text-sm"
+          className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-sm text-danger"
         >
           {error}
         </div>
@@ -129,12 +129,12 @@ export function UnmatchedPanel({
       {groups.map((group) => (
         <div
           key={group.bankTransaction.id}
-          className="flex flex-col gap-3 rounded-lg border border-border p-4"
+          className="card flex flex-col gap-4 p-5"
         >
           <TransactionSide label="Bank" transaction={group.bankTransaction} />
 
           <div className="flex flex-col gap-2 border-t border-border pt-3">
-            <span className="text-xs font-medium text-muted">
+            <span className="text-[0.7rem] font-medium uppercase tracking-wider text-muted">
               Closest ledger entries
             </span>
 
@@ -143,7 +143,7 @@ export function UnmatchedPanel({
               return (
                 <div
                   key={candidate.ledger_transaction.id}
-                  className="flex flex-col gap-2 rounded-lg bg-surface p-3 sm:flex-row sm:items-start sm:justify-between"
+                  className="card-quiet flex flex-col gap-3 p-3.5 sm:flex-row sm:items-start sm:justify-between"
                 >
                   <div className="flex flex-col gap-1">
                     <TransactionSide
@@ -154,14 +154,14 @@ export function UnmatchedPanel({
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="text-xs text-muted tabular-nums">
-                      {candidate.score}% match
+                    <span className="badge badge-neutral numeric">
+                      {candidate.score} match
                     </span>
                     <button
                       type="button"
                       onClick={() => void reconcile(candidate)}
                       disabled={pending !== null}
-                      className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-40"
+                      className="btn btn-ghost"
                     >
                       {pending === key ? "Reconciling…" : "Reconcile"}
                     </button>
