@@ -235,16 +235,16 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 20: Reconciliation Review UI
 
-- [ ] Build job status card.
-- [ ] Build reconciliation summary card.
-- [ ] Build under-review match card.
-- [ ] Show bank transaction details in review card.
-- [ ] Show ledger transaction details in review card.
-- [ ] Show confidence score and match reason.
-- [ ] Add approve button.
-- [ ] Add reject button.
-- [ ] Refresh chat or summary after approve/reject.
-- [ ] Add optional read-only reconciliation detail page.
+- [x] Build job status card.
+- [x] Build reconciliation summary card.
+- [x] Build under-review match card.
+- [x] Show bank transaction details in review card.
+- [x] Show ledger transaction details in review card.
+- [x] Show confidence score and match reason.
+- [x] Add approve button.
+- [x] Add reject button.
+- [x] Refresh chat or summary after approve/reject.
+- [x] Add optional read-only reconciliation detail page.
 
 ## Phase 21: End-To-End Flow
 
