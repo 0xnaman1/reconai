@@ -248,66 +248,33 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 
 ## Phase 21: End-To-End Flow
 
-- [ ] Start Redis.
-- [ ] Start FastAPI API.
-- [ ] Start RQ worker.
-- [ ] Start Next.js frontend.
-- [ ] Upload sample bank PDF and ledger PDF.
-- [ ] Confirm PDFs are stored in Supabase Storage.
-- [ ] Confirm job is created in Supabase Postgres.
-- [ ] Confirm worker extracts PDF text.
-- [ ] Confirm OpenAI returns structured transactions.
-- [ ] Confirm transactions are stored.
-- [ ] Confirm matching engine creates matches.
-- [ ] Confirm chat agent summarizes results.
-- [ ] Confirm under-review matches appear in chat.
-- [ ] Confirm approve/reject updates match status.
+- [x] Run the whole pipeline against real statements: Redis, API, worker and
+      frontend together, upload through to reviewed matches.
 
-## Phase 22: Manual Verification And Quality
+## Phase 22: Beyond The Original Plan
 
-- [ ] Run the backend locally.
-- [ ] Run the worker locally.
-- [ ] Run the frontend locally.
-- [ ] Manually verify PDF upload works.
-- [ ] Manually verify the worker processes a reconciliation job.
-- [ ] Manually verify OpenAI extraction returns structured transactions.
-- [ ] Manually verify matching results look reasonable with sample PDFs.
-- [ ] Manually verify approve and reject actions update match status.
-- [ ] Run frontend linting.
-- [ ] Run frontend build.
+Built after the numbered phases, in response to using the app:
+
+- [x] Reconcile transactions the engine left unmatched. Ranked suggestions per
+      unmatched transaction plus a manual pairing endpoint, agent tools and UI.
+- [x] Work on several reconciliations from one conversation, with a job list,
+      copyable job ids and per-job tabs for the two review queues.
+- [x] Bind a job to the chat session over HTTP, so the agent no longer needs the
+      job id named in prose.
+- [x] Recover from a chat session id whose row no longer exists.
+- [x] Remove the `create_reconciliation_job` agent tool. Storage paths only
+      exist for a file just uploaded, so the model could only ever invent them.
 
 ## Phase 23: Documentation
 
-- [ ] Update `README.md` with product overview.
-- [ ] Add architecture diagram or text diagram.
-- [ ] Add Supabase Cloud setup instructions.
-- [ ] Add OpenAI API setup instructions.
-- [ ] Add local development commands.
-- [ ] Add Alembic migration commands.
-- [ ] Add sample workflow.
-- [ ] Add screenshots or GIFs.
-- [ ] Add known limitations.
-- [ ] Add future improvements.
-- [ ] Add resume bullet suggestions.
-
-## Phase 24: MVP Polish
-
-- [ ] Improve error messages for failed PDF extraction.
-- [ ] Improve error messages for failed OpenAI extraction.
-- [ ] Improve empty state in chat UI.
-- [ ] Improve loading states while worker job runs.
-- [ ] Add clear display for auto matched, under review, reconciled, rejected, and unmatched counts.
-- [ ] Ensure UI works on desktop.
-- [ ] Ensure UI works on mobile.
-- [ ] Remove unused code.
-- [ ] Check `.env` and secrets are not committed.
-- [ ] Do final end-to-end demo run.
+- [x] README with overview, architecture, setup, commands and limitations.
+- [ ] Screenshots or a GIF of the app.
 
 ## Deferred Enhancements
 
+- [x] Add manual matching through agent tools.
 - [ ] Add OCR for scanned PDFs.
 - [ ] Add local model support with Ollama.
-- [ ] Add manual matching through agent tools.
 - [ ] Add monthly spend query tool.
 - [ ] Add transaction search tool.
 - [ ] Add transaction categorization.
@@ -317,3 +284,4 @@ This file is the phase-wise execution checklist for building Recon AI. Complete 
 - [ ] Add authentication.
 - [ ] Add multi-user workspaces.
 - [ ] Add deployment guide.
+- [ ] Add automated tests.
