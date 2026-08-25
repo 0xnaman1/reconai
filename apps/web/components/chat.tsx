@@ -2,26 +2,27 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatTranscript } from "@/components/chat-transcript";
+import { JobList } from "@/components/job-list";
+import { JobPanel } from "@/components/job-panel";
 import { MessageInput } from "@/components/message-input";
-import { ReviewPanel } from "@/components/review-panel";
 import { StatementUpload } from "@/components/statement-upload";
-import { UnmatchedPanel } from "@/components/unmatched-panel";
 import {
   ApiError,
   createChatSession,
   createReconciliation,
   getChatSession,
-  getReconciliation,
   listChatMessages,
+  listReconciliations,
   sendChatMessage,
+  setActiveJob,
 } from "@/lib/api";
-import { TERMINAL_STATUSES, formatJobStatus } from "@/lib/format";
+import { TERMINAL_STATUSES } from "@/lib/format";
 import {
   clearStoredSessionId,
   readStoredSessionId,
   storeSessionId,
 } from "@/lib/session";
-import type { ChatMessage, JobStatus } from "@/lib/types";
+import type { ChatMessage, ReconciliationJob } from "@/lib/types";
 
 const POLL_INTERVAL_MS = 2000;
 
@@ -37,20 +38,20 @@ function errorMessage(error: unknown): string {
 export function Chat() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [jobId, setJobId] = useState<string | null>(null);
-  const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
+  const [jobs, setJobs] = useState<ReconciliationJob[]>([]);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
   // A completed job should prompt the agent once, not on every poll tick.
-  const announcedJob = useRef<string | null>(null);
+  const announcedJobs = useRef<Set<string>>(new Set());
 
-  // Bumped after any review decision so both panels reload: reconciling or
-  // rejecting one pair changes which transactions are still unmatched.
-  const [reviewKey, setReviewKey] = useState(0);
-  const bumpReview = useCallback(() => setReviewKey((n) => n + 1), []);
+  const activeJob = jobs.find((job) => job.id === activeJobId) ?? null;
+  const processing = jobs.some(
+    (job) => !TERMINAL_STATUSES.includes(job.status),
+  );
 
   const send = useCallback(
     async (text: string) => {
@@ -88,25 +89,21 @@ export function Chat() {
     [sessionId],
   );
 
-  // Resume the stored conversation, or start a new one.
+  // Resume the stored conversation, or start a new one, and load past jobs.
   useEffect(() => {
     let cancelled = false;
 
     async function start() {
       try {
         const stored = readStoredSessionId();
+        let session = null;
+
         if (stored) {
           try {
-            const session = await getChatSession(stored);
+            session = await getChatSession(stored);
             const history = await listChatMessages(stored);
             if (cancelled) return;
-            setSessionId(session.id);
             setMessages(history);
-            if (session.active_job_id) {
-              setJobId(session.active_job_id);
-              announcedJob.current = session.active_job_id;
-            }
-            return;
           } catch (caught) {
             // The backend no longer has this session, so the stored id is
             // dead and keeping it would strand the user on an error with no
@@ -118,10 +115,23 @@ export function Chat() {
           }
         }
 
-        const session = await createChatSession();
+        if (session === null) {
+          session = await createChatSession();
+          if (cancelled) return;
+          storeSessionId(session.id);
+        }
+
+        const existing = await listReconciliations();
         if (cancelled) return;
-        storeSessionId(session.id);
+
         setSessionId(session.id);
+        setJobs(existing);
+        // A job the conversation already covered has been announced already.
+        existing
+          .filter((job) => job.status === "completed")
+          .forEach((job) => announcedJobs.current.add(job.id));
+
+        if (session.active_job_id) setActiveJobId(session.active_job_id);
       } catch (caught) {
         if (!cancelled) setError(errorMessage(caught));
       } finally {
@@ -135,20 +145,16 @@ export function Chat() {
     };
   }, []);
 
-  // Follow a job while the worker is still processing it.
+  // Follow every job the worker is still processing. Reloading the whole list
+  // keeps one poll covering any number of running jobs.
   useEffect(() => {
-    if (!jobId) return;
-    if (jobStatus && TERMINAL_STATUSES.includes(jobStatus)) return;
+    if (!processing) return;
 
     let cancelled = false;
     const timer = setInterval(async () => {
       try {
-        const detail = await getReconciliation(jobId);
-        if (cancelled) return;
-        setJobStatus(detail.job.status);
-        if (detail.job.status === "failed") {
-          setError(detail.job.error_message ?? "The reconciliation failed.");
-        }
+        const latest = await listReconciliations();
+        if (!cancelled) setJobs(latest);
       } catch (caught) {
         if (!cancelled) setError(errorMessage(caught));
       }
@@ -158,36 +164,44 @@ export function Chat() {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [jobId, jobStatus]);
+  }, [processing]);
 
-  // Once processing finishes, let the agent report on it.
+  // Once the selected job finishes, let the agent report on it.
   useEffect(() => {
-    if (!jobId || jobStatus !== "completed") return;
-    if (announcedJob.current === jobId) return;
-    announcedJob.current = jobId;
-    void send(
-      `I've uploaded the statements. The reconciliation job id is ${jobId}. ` +
-        `How did it go?`,
-    );
-  }, [jobId, jobStatus, send]);
+    if (activeJob?.status !== "completed") return;
+    if (announcedJobs.current.has(activeJob.id)) return;
+    announcedJobs.current.add(activeJob.id);
+    void send("The reconciliation finished. How did it go?");
+  }, [activeJob, send]);
+
+  const selectJob = useCallback(
+    async (jobId: string) => {
+      setActiveJobId(jobId);
+      if (!sessionId) return;
+      try {
+        // Binding the job to the session is what lets the user ask "what's
+        // unmatched?" without repeating an id the agent would otherwise need.
+        await setActiveJob(sessionId, jobId);
+      } catch (caught) {
+        setError(errorMessage(caught));
+      }
+    },
+    [sessionId],
+  );
 
   async function upload(bankPdf: File, ledgerPdf: File) {
     setError(null);
     setUploading(true);
     try {
       const created = await createReconciliation(bankPdf, ledgerPdf);
-      setJobId(created.job_id);
-      setJobStatus(created.status as JobStatus);
+      setJobs(await listReconciliations());
+      await selectJob(created.job_id);
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
       setUploading(false);
     }
   }
-
-  const processing =
-    jobStatus !== null && !TERMINAL_STATUSES.includes(jobStatus);
-  const busy = thinking || uploading || processing;
 
   // The session id comes from localStorage and the transcript from an effect,
   // so nothing interactive exists until the browser has run. Rendering the
@@ -203,16 +217,13 @@ export function Chat() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      {!jobId && (
-        <StatementUpload onSubmit={upload} disabled={uploading || !sessionId} />
-      )}
+      <StatementUpload onSubmit={upload} disabled={uploading || !sessionId} />
 
-      {processing && jobStatus && (
-        <p className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm">
-          {formatJobStatus(jobStatus)}…{" "}
-          <span className="text-muted">This usually takes under a minute.</span>
-        </p>
-      )}
+      <JobList
+        jobs={jobs}
+        activeJobId={activeJobId}
+        onSelect={(jobId) => void selectJob(jobId)}
+      />
 
       {error && (
         <div
@@ -223,15 +234,12 @@ export function Chat() {
         </div>
       )}
 
-      {jobId && jobStatus === "completed" && (
-        <>
-          <ReviewPanel key={reviewKey} jobId={jobId} onReviewed={bumpReview} />
-          <UnmatchedPanel
-            key={`unmatched-${reviewKey}`}
-            jobId={jobId}
-            onReconciled={bumpReview}
-          />
-        </>
+      {activeJob && (
+        <JobPanel
+          key={activeJob.id}
+          jobId={activeJob.id}
+          status={activeJob.status}
+        />
       )}
 
       <div className="flex-1">
@@ -242,7 +250,10 @@ export function Chat() {
         )}
       </div>
 
-      <MessageInput onSend={send} disabled={busy || !sessionId} />
+      <MessageInput
+        onSend={send}
+        disabled={thinking || uploading || !sessionId}
+      />
     </div>
   );
 }

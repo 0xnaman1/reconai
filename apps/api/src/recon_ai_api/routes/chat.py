@@ -13,6 +13,7 @@ from recon_ai_core.schemas import (
     ChatMessageResponse,
     ChatSessionCreateRequest,
     ChatSessionResponse,
+    ChatSessionUpdateRequest,
 )
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -62,6 +63,33 @@ def get_chat_session(
 ) -> ChatSessionResponse:
     """Read a session, including the reconciliation job it is working on."""
     return ChatSessionResponse.model_validate(_load_session(session, session_id))
+
+
+@router.patch("/sessions/{session_id}", response_model=ChatSessionResponse)
+def update_chat_session(
+    session_id: uuid.UUID,
+    payload: ChatSessionUpdateRequest,
+    session: Annotated[Session, Depends(get_db_session)],
+) -> ChatSessionResponse:
+    """Point an existing session at a different job.
+
+    Without this the job can only change as a side effect of the agent calling
+    a tool, which forces the user to name a job id in prose before the agent
+    can act on it.
+    """
+    chat_session = _load_session(session, session_id)
+
+    if (
+        payload.active_job_id is not None
+        and session.get(ReconciliationJob, payload.active_job_id) is None
+    ):
+        raise AppError("Reconciliation job not found", status_code=404)
+
+    chat_session.active_job_id = payload.active_job_id
+    session.commit()
+    session.refresh(chat_session)
+
+    return ChatSessionResponse.model_validate(chat_session)
 
 
 @router.get("/sessions/{session_id}/messages", response_model=list[ChatMessageResponse])

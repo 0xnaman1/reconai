@@ -81,6 +81,29 @@ def create_reconciliation(
         raise AppError("Failed to create reconciliation job", status_code=500) from exc
 
 
+@router.get("", response_model=list[ReconciliationJobResponse])
+def list_reconciliations(
+    session: Annotated[Session, Depends(get_db_session)],
+    limit: int = 20,
+) -> list[ReconciliationJobResponse]:
+    """List reconciliation jobs, most recent first.
+
+    There are no accounts in the MVP, so this is every job rather than one
+    user's. It exists so the frontend can offer past jobs to switch between
+    instead of making the user keep job ids somewhere else.
+    """
+    if limit < 1:
+        raise AppError("limit must be at least 1", status_code=422)
+
+    jobs = session.scalars(
+        select(ReconciliationJob)
+        .order_by(ReconciliationJob.created_at.desc())
+        .limit(limit)
+    ).all()
+
+    return [ReconciliationJobResponse.model_validate(job) for job in jobs]
+
+
 @router.get("/{job_id}", response_model=ReconciliationDetailResponse)
 def get_reconciliation(
     job_id: uuid.UUID,

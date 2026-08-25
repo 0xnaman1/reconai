@@ -123,6 +123,12 @@ class ChatSessionCreateRequest(BaseModel):
     active_job_id: uuid.UUID | None = None
 
 
+class ChatSessionUpdateRequest(BaseModel):
+    """Point a session at a job, or at nothing when active_job_id is null."""
+
+    active_job_id: uuid.UUID | None = None
+
+
 class ChatMessageCreateRequest(BaseModel):
     role: ChatRole
     content: str = Field(min_length=1)

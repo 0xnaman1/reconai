@@ -104,17 +104,12 @@ export function UnmatchedPanel({
     );
   }
 
-  if (!error && groups.length === 0) return null;
-
   return (
-    <section className="flex flex-col gap-3">
-      <div>
-        <h2 className="text-sm font-medium">Unmatched transactions</h2>
-        <p className="text-xs text-muted">
-          Nothing scored high enough for the engine to pair these
-          automatically. If you recognize a counterpart, reconcile it yourself.
-        </p>
-      </div>
+    <div className="flex flex-col gap-3">
+      <p className="text-xs text-muted">
+        Nothing scored high enough for the engine to pair these automatically.
+        If you recognize a counterpart, reconcile it yourself.
+      </p>
 
       {error && (
         <div
@@ -123,6 +118,12 @@ export function UnmatchedPanel({
         >
           {error}
         </div>
+      )}
+
+      {groups.length === 0 && !error && (
+        <p className="text-sm text-muted">
+          Every transaction on both sides is accounted for.
+        </p>
       )}
 
       {groups.map((group) => (
@@ -171,6 +172,6 @@ export function UnmatchedPanel({
           </div>
         </div>
       ))}
-    </section>
+    </div>
   );
 }

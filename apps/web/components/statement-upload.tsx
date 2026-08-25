@@ -42,7 +42,7 @@ export function StatementUpload({
 
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-      <p className="text-sm font-medium">Upload both statements to start</p>
+      <p className="text-sm font-medium">New reconciliation</p>
       <div className="flex flex-col gap-3 sm:flex-row">
         <FilePicker
           label="Bank statement PDF"
@@ -63,7 +63,7 @@ export function StatementUpload({
         onClick={() => ready && onSubmit(bankPdf, ledgerPdf)}
         className="self-start rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-40"
       >
-        {disabled ? "Working…" : "Reconcile"}
+        {disabled ? "Uploading…" : "Reconcile"}
       </button>
       <p className="text-xs text-muted">
         Text-based PDFs only. Scanned statements are not supported.

@@ -12,6 +12,7 @@ import type {
   MatchStatus,
   MatchSuggestion,
   ReconciliationDetail,
+  ReconciliationJob,
   Transaction,
 } from "./types";
 
@@ -78,6 +79,10 @@ export function createReconciliation(
   return request("/reconciliations", { method: "POST", body: form });
 }
 
+export function listReconciliations(limit = 20): Promise<ReconciliationJob[]> {
+  return request(`/reconciliations?limit=${limit}`);
+}
+
 export function getReconciliation(jobId: string): Promise<ReconciliationDetail> {
   return request(`/reconciliations/${jobId}`);
 }
@@ -128,6 +133,17 @@ export function createChatSession(activeJobId?: string): Promise<ChatSession> {
 
 export function getChatSession(sessionId: string): Promise<ChatSession> {
   return request(`/chat/sessions/${sessionId}`);
+}
+
+/** Point the session at a job so the agent no longer needs it named in prose. */
+export function setActiveJob(
+  sessionId: string,
+  jobId: string | null,
+): Promise<ChatSession> {
+  return request(`/chat/sessions/${sessionId}`, {
+    ...json({ active_job_id: jobId }),
+    method: "PATCH",
+  });
 }
 
 export function listChatMessages(sessionId: string): Promise<ChatMessage[]> {

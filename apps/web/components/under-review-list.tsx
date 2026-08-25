@@ -2,49 +2,38 @@
 
 import { useEffect, useState } from "react";
 import { MatchReviewCard } from "@/components/match-review-card";
-import { SummaryCard } from "@/components/summary-card";
 import {
   ApiError,
   approveMatch,
-  getReconciliation,
   listMatches,
   listTransactions,
   rejectMatch,
 } from "@/lib/api";
-import type { Match, ReconciliationSummary, Transaction } from "@/lib/types";
+import type { Match, Transaction } from "@/lib/types";
 
-/** Summary and the review queue for one job, refreshed after each decision. */
-export function ReviewPanel({
+/** The matches a reviewer still has to approve or reject. */
+export function UnderReviewList({
   jobId,
   onReviewed,
 }: {
   jobId: string;
-  onReviewed?: () => void;
+  onReviewed: () => void;
 }) {
-  const [summary, setSummary] = useState<ReconciliationSummary | null>(null);
-  const [jobError, setJobError] = useState<string | null>(null);
   const [pending, setPending] = useState<Match[]>([]);
   const [transactions, setTransactions] = useState<Map<string, Transaction>>(
     new Map(),
   );
+  const [loading, setLoading] = useState(true);
   const [busyMatchId, setBusyMatchId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Bumped by a decision so the effect below reloads the counts and queue.
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       try {
-        const [detail, underReview] = await Promise.all([
-          getReconciliation(jobId),
-          listMatches(jobId, "under_review"),
-        ]);
+        const underReview = await listMatches(jobId, "under_review");
         if (cancelled) return;
-        setSummary(detail.summary);
-        setJobError(detail.job.error_message);
         setPending(underReview);
 
         // Matches carry transaction ids only, so index the job's rows once
@@ -54,6 +43,7 @@ export function ReviewPanel({
           if (cancelled) return;
           setTransactions(new Map(rows.map((row) => [row.id, row])));
         }
+        setError(null);
       } catch (caught) {
         if (cancelled) return;
         setError(
@@ -61,6 +51,8 @@ export function ReviewPanel({
             ? caught.message
             : "Could not load the review queue.",
         );
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -68,15 +60,16 @@ export function ReviewPanel({
     return () => {
       cancelled = true;
     };
-  }, [jobId, refreshKey]);
+  }, [jobId]);
 
   async function decide(matchId: string, approve: boolean) {
     setBusyMatchId(matchId);
     setError(null);
     try {
       await (approve ? approveMatch(matchId) : rejectMatch(matchId));
-      setRefreshKey((key) => key + 1);
-      onReviewed?.();
+      // Deciding one match changes the counts and the unmatched pool, so the
+      // parent remounts this list rather than patching it.
+      onReviewed();
     } catch (caught) {
       setError(
         caught instanceof ApiError
@@ -88,29 +81,40 @@ export function ReviewPanel({
     }
   }
 
-  if (!summary) return null;
+  if (loading) {
+    return (
+      <p className="text-sm text-muted" aria-live="polite">
+        Loading the review queue…
+      </p>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3">
-      <SummaryCard summary={summary} errorMessage={jobError} />
-
       {error && (
         <p role="alert" className="text-sm text-red-500">
           {error}
         </p>
       )}
 
-      {pending.map((match) => (
-        <MatchReviewCard
-          key={match.id}
-          match={match}
-          bankTransaction={transactions.get(match.bank_transaction_id)}
-          ledgerTransaction={transactions.get(match.ledger_transaction_id)}
-          onApprove={() => decide(match.id, true)}
-          onReject={() => decide(match.id, false)}
-          busy={busyMatchId !== null}
-        />
-      ))}
+      {pending.length === 0 ? (
+        <p className="text-sm text-muted">
+          Nothing is waiting on you. Every match the engine made was confident
+          enough to accept on its own.
+        </p>
+      ) : (
+        pending.map((match) => (
+          <MatchReviewCard
+            key={match.id}
+            match={match}
+            bankTransaction={transactions.get(match.bank_transaction_id)}
+            ledgerTransaction={transactions.get(match.ledger_transaction_id)}
+            onApprove={() => decide(match.id, true)}
+            onReject={() => decide(match.id, false)}
+            busy={busyMatchId !== null}
+          />
+        ))
+      )}
     </div>
   );
 }
