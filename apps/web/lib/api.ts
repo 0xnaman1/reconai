@@ -10,6 +10,7 @@ import type {
   ChatSession,
   Match,
   MatchStatus,
+  MatchSuggestion,
   ReconciliationDetail,
   Transaction,
 } from "./types";
@@ -99,6 +100,26 @@ export function approveMatch(matchId: string): Promise<Match> {
 
 export function rejectMatch(matchId: string): Promise<Match> {
   return request(`/matches/${matchId}/reject`, { method: "POST" });
+}
+
+export function listMatchSuggestions(
+  jobId: string,
+): Promise<MatchSuggestion[]> {
+  return request(`/reconciliations/${jobId}/suggestions`);
+}
+
+export function createManualMatch(
+  jobId: string,
+  bankTransactionId: string,
+  ledgerTransactionId: string,
+): Promise<Match> {
+  return request(
+    `/reconciliations/${jobId}/manual-match`,
+    json({
+      bank_transaction_id: bankTransactionId,
+      ledger_transaction_id: ledgerTransactionId,
+    }),
+  );
 }
 
 export function createChatSession(activeJobId?: string): Promise<ChatSession> {

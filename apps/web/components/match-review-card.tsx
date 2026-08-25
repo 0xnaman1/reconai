@@ -1,37 +1,7 @@
 "use client";
 
-import { formatAmount, formatDate } from "@/lib/format";
+import { TransactionSide } from "@/components/transaction-side";
 import type { Match, Transaction } from "@/lib/types";
-
-function Side({
-  label,
-  transaction,
-}: {
-  label: string;
-  transaction: Transaction | undefined;
-}) {
-  if (!transaction) {
-    return (
-      <p className="text-sm text-muted">{label}: details unavailable</p>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs font-medium text-muted">{label}</span>
-      <span className="text-sm">{transaction.description}</span>
-      <span className="text-xs text-muted">
-        {formatDate(transaction.transaction_date)}
-        {transaction.reference_number
-          ? ` · ref ${transaction.reference_number}`
-          : " · no reference"}
-      </span>
-      <span className="text-sm font-medium tabular-nums">
-        {formatAmount(transaction.amount, transaction.currency)}
-      </span>
-    </div>
-  );
-}
 
 export function MatchReviewCard({
   match,
@@ -58,8 +28,8 @@ export function MatchReviewCard({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Side label="Bank" transaction={bankTransaction} />
-        <Side label="Ledger" transaction={ledgerTransaction} />
+        <TransactionSide label="Bank" transaction={bankTransaction} />
+        <TransactionSide label="Ledger" transaction={ledgerTransaction} />
       </div>
 
       <p className="text-xs text-muted">{match.reason}</p>

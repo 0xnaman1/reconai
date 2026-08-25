@@ -516,6 +516,8 @@ list_under_review_matches(job_id)
 approve_match(match_id)
 reject_match(match_id)
 list_unmatched_transactions(job_id)
+list_match_suggestions(job_id)
+manual_match(bank_transaction_id, ledger_transaction_id)
 ```
 
 Creating a reconciliation is not a tool. The upload endpoint stores both PDFs
@@ -526,7 +528,6 @@ invent it, creating a job whose PDFs do not exist.
 Future tools:
 
 ```text
-manual_match(bank_transaction_id, ledger_transaction_id)
 query_spend_by_month(month, year)
 query_transactions(filters)
 ```

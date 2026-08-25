@@ -24,6 +24,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from recon_ai_core.constants import MatchStatus, TransactionSource
+from recon_ai_core.matching import (
+    MatchingError,
+    create_manual_match,
+    suggest_matches,
+)
 from recon_ai_core.models import AgentAction, Match, ReconciliationJob, Transaction
 from recon_ai_core.reporting import (
     build_reconciliation_summary,
@@ -161,6 +166,51 @@ def list_unmatched(session: Session, job_id: str) -> dict[str, Any]:
     }
 
 
+def list_match_suggestions(session: Session, job_id: str) -> dict[str, Any]:
+    """Rank possible counterparts for each transaction left unmatched."""
+    parsed_job_id = _parse_uuid(job_id, "job_id")
+    _require_job(session, parsed_job_id)
+
+    suggestions = suggest_matches(session, parsed_job_id)[:MAX_ROWS]
+    return {
+        "job_id": job_id,
+        "count": len(suggestions),
+        "suggestions": [
+            {
+                "score": suggestion.score,
+                "reason": suggestion.reason,
+                "bank_transaction": _transaction_summary(suggestion.bank_transaction),
+                "ledger_transaction": _transaction_summary(
+                    suggestion.ledger_transaction
+                ),
+            }
+            for suggestion in suggestions
+        ],
+    }
+
+
+def manual_match(
+    session: Session, bank_transaction_id: str, ledger_transaction_id: str
+) -> dict[str, Any]:
+    """Reconcile two unmatched transactions the user says belong together."""
+    try:
+        match = create_manual_match(
+            session,
+            _parse_uuid(bank_transaction_id, "bank_transaction_id"),
+            _parse_uuid(ledger_transaction_id, "ledger_transaction_id"),
+        )
+    except MatchingError as exc:
+        raise ToolError(str(exc)) from exc
+
+    return {
+        "match_id": str(match.id),
+        "job_id": str(match.job_id),
+        "status": match.status,
+        "match_type": match.match_type,
+        "confidence_score": match.confidence_score,
+    }
+
+
 def _tool(name: str, description: str, properties: dict[str, Any]) -> dict[str, Any]:
     return {
         "type": "function",
@@ -215,6 +265,28 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         {"match_id": _MATCH_ID},
     ),
     _tool(
+        "list_match_suggestions",
+        "For each unmatched transaction, list the closest remaining candidates "
+        "on the other side with a score and an explanation. The engine scored "
+        "all of these too low to assert, so they need the user to decide.",
+        {"job_id": _JOB_ID},
+    ),
+    _tool(
+        "manual_match",
+        "Reconcile two unmatched transactions as the same real transaction. "
+        "Only call this when the user has identified the specific pair.",
+        {
+            "bank_transaction_id": {
+                "type": "string",
+                "description": "Id of the unmatched bank transaction",
+            },
+            "ledger_transaction_id": {
+                "type": "string",
+                "description": "Id of the unmatched ledger transaction",
+            },
+        },
+    ),
+    _tool(
         "list_unmatched_transactions",
         "List transactions with no counterpart on the other side. These are the "
         "discrepancies a user needs to investigate.",
@@ -229,6 +301,8 @@ TOOL_IMPLEMENTATIONS: dict[str, Callable[..., dict[str, Any]]] = {
     "approve_match": approve_match,
     "reject_match": reject_match,
     "list_unmatched_transactions": list_unmatched,
+    "list_match_suggestions": list_match_suggestions,
+    "manual_match": manual_match,
 }
 
 

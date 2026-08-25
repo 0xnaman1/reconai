@@ -72,6 +72,14 @@ export interface Match {
   updated_at: string;
 }
 
+/** A candidate pairing the engine scored too low to assert on its own. */
+export interface MatchSuggestion {
+  bank_transaction: Transaction;
+  ledger_transaction: Transaction;
+  score: number;
+  reason: string;
+}
+
 export interface ChatSession {
   id: string;
   active_job_id: string | null;

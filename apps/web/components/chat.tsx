@@ -5,6 +5,7 @@ import { ChatTranscript } from "@/components/chat-transcript";
 import { MessageInput } from "@/components/message-input";
 import { ReviewPanel } from "@/components/review-panel";
 import { StatementUpload } from "@/components/statement-upload";
+import { UnmatchedPanel } from "@/components/unmatched-panel";
 import {
   ApiError,
   createChatSession,
@@ -46,7 +47,8 @@ export function Chat() {
   // A completed job should prompt the agent once, not on every poll tick.
   const announcedJob = useRef<string | null>(null);
 
-  // Bumped after a decision so the panel reloads its counts.
+  // Bumped after any review decision so both panels reload: reconciling or
+  // rejecting one pair changes which transactions are still unmatched.
   const [reviewKey, setReviewKey] = useState(0);
   const bumpReview = useCallback(() => setReviewKey((n) => n + 1), []);
 
@@ -222,7 +224,14 @@ export function Chat() {
       )}
 
       {jobId && jobStatus === "completed" && (
-        <ReviewPanel key={reviewKey} jobId={jobId} onReviewed={bumpReview} />
+        <>
+          <ReviewPanel key={reviewKey} jobId={jobId} onReviewed={bumpReview} />
+          <UnmatchedPanel
+            key={`unmatched-${reviewKey}`}
+            jobId={jobId}
+            onReconciled={bumpReview}
+          />
+        </>
       )}
 
       <div className="flex-1">

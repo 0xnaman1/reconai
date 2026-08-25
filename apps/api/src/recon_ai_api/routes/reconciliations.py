@@ -6,12 +6,20 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, UploadFile
 from recon_ai_core.constants import JobStatus, MatchStatus
-from recon_ai_core.matching import replace_job_matches
+from recon_ai_core.matching import (
+    SUGGESTIONS_PER_TRANSACTION,
+    MatchingError,
+    create_manual_match,
+    replace_job_matches,
+    suggest_matches,
+)
 from recon_ai_core.models import Match, ReconciliationJob, Transaction
 from recon_ai_core.queue import enqueue_reconciliation_job
 from recon_ai_core.reporting import build_reconciliation_summary
 from recon_ai_core.schemas import (
+    ManualMatchRequest,
     MatchResponse,
+    MatchSuggestionResponse,
     ReconciliationCreateResponse,
     ReconciliationDetailResponse,
     ReconciliationJobResponse,
@@ -176,3 +184,55 @@ def list_reconciliation_transactions(
     ).all()
 
     return [TransactionResponse.model_validate(row) for row in transactions]
+
+
+@router.get("/{job_id}/suggestions", response_model=list[MatchSuggestionResponse])
+def list_match_suggestions(
+    job_id: uuid.UUID,
+    session: Annotated[Session, Depends(get_db_session)],
+    limit_per_transaction: int = SUGGESTIONS_PER_TRANSACTION,
+) -> list[MatchSuggestionResponse]:
+    """Rank possible counterparts for each transaction the engine left unmatched.
+
+    These pairs all scored below the review threshold, so the engine refused to
+    assert them. A reviewer who recognizes one can reconcile it through
+    /manual-match.
+    """
+    if session.get(ReconciliationJob, job_id) is None:
+        raise AppError("Reconciliation job not found", status_code=404)
+    if limit_per_transaction < 1:
+        raise AppError("limit_per_transaction must be at least 1", status_code=422)
+
+    return [
+        MatchSuggestionResponse.model_validate(suggestion)
+        for suggestion in suggest_matches(session, job_id, limit_per_transaction)
+    ]
+
+
+@router.post("/{job_id}/manual-match", response_model=MatchResponse)
+def create_manual_match_endpoint(
+    job_id: uuid.UUID,
+    payload: ManualMatchRequest,
+    session: Annotated[Session, Depends(get_db_session)],
+) -> MatchResponse:
+    """Reconcile two unmatched transactions on a reviewer's say-so.
+
+    The pair is stored reconciled rather than under review: the reviewer has
+    already made the decision that review exists to collect.
+    """
+    if session.get(ReconciliationJob, job_id) is None:
+        raise AppError("Reconciliation job not found", status_code=404)
+
+    try:
+        match = create_manual_match(
+            session, payload.bank_transaction_id, payload.ledger_transaction_id
+        )
+        if match.job_id != job_id:
+            raise MatchingError("Both transactions must belong to this job")
+        session.commit()
+    except MatchingError as exc:
+        session.rollback()
+        raise AppError(str(exc), status_code=409) from exc
+
+    session.refresh(match)
+    return MatchResponse.model_validate(match)

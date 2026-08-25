@@ -85,6 +85,27 @@ class MatchResponse(BaseModel):
     updated_at: datetime
 
 
+class MatchSuggestionResponse(BaseModel):
+    """A candidate pairing offered to a reviewer, with both sides inlined.
+
+    Unlike MatchResponse this carries the transactions themselves rather than
+    their ids, because a reviewer cannot judge a suggestion without seeing what
+    is being suggested.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    bank_transaction: TransactionResponse
+    ledger_transaction: TransactionResponse
+    score: int
+    reason: str
+
+
+class ManualMatchRequest(BaseModel):
+    bank_transaction_id: uuid.UUID
+    ledger_transaction_id: uuid.UUID
+
+
 class ReconciliationSummaryResponse(BaseModel):
     job_id: uuid.UUID
     status: JobStatus
