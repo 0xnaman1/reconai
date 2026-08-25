@@ -15,7 +15,11 @@ import {
   sendChatMessage,
 } from "@/lib/api";
 import { TERMINAL_STATUSES, formatJobStatus } from "@/lib/format";
-import { readStoredSessionId, storeSessionId } from "@/lib/session";
+import {
+  clearStoredSessionId,
+  readStoredSessionId,
+  storeSessionId,
+} from "@/lib/session";
 import type { ChatMessage, JobStatus } from "@/lib/types";
 
 const POLL_INTERVAL_MS = 2000;
@@ -90,21 +94,32 @@ export function Chat() {
       try {
         const stored = readStoredSessionId();
         if (stored) {
-          const session = await getChatSession(stored);
-          const history = await listChatMessages(stored);
-          if (cancelled) return;
-          setSessionId(session.id);
-          setMessages(history);
-          if (session.active_job_id) {
-            setJobId(session.active_job_id);
-            announcedJob.current = session.active_job_id;
+          try {
+            const session = await getChatSession(stored);
+            const history = await listChatMessages(stored);
+            if (cancelled) return;
+            setSessionId(session.id);
+            setMessages(history);
+            if (session.active_job_id) {
+              setJobId(session.active_job_id);
+              announcedJob.current = session.active_job_id;
+            }
+            return;
+          } catch (caught) {
+            // The backend no longer has this session, so the stored id is
+            // dead and keeping it would strand the user on an error with no
+            // way to type. Forget it and start a fresh conversation instead.
+            if (!(caught instanceof ApiError) || caught.status !== 404) {
+              throw caught;
+            }
+            clearStoredSessionId();
           }
-        } else {
-          const session = await createChatSession();
-          if (cancelled) return;
-          storeSessionId(session.id);
-          setSessionId(session.id);
         }
+
+        const session = await createChatSession();
+        if (cancelled) return;
+        storeSessionId(session.id);
+        setSessionId(session.id);
       } catch (caught) {
         if (!cancelled) setError(errorMessage(caught));
       } finally {

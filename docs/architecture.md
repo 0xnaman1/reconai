@@ -510,7 +510,6 @@ The agent should use OpenAI tool calling with backend-defined tools. It should n
 MVP tools:
 
 ```text
-create_reconciliation_job(bank_pdf, ledger_pdf)
 get_reconciliation_status(job_id)
 get_reconciliation_summary(job_id)
 list_under_review_matches(job_id)
@@ -518,6 +517,11 @@ approve_match(match_id)
 reject_match(match_id)
 list_unmatched_transactions(job_id)
 ```
+
+Creating a reconciliation is not a tool. The upload endpoint stores both PDFs
+and creates the job together, so a storage path only exists for a file that was
+just uploaded. An agent asked to start a job has no way to obtain one and would
+invent it, creating a job whose PDFs do not exist.
 
 Future tools:
 

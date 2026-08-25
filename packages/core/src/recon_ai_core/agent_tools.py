@@ -7,6 +7,11 @@ rather than by whatever the model decides to ask for.
 
 Each call is recorded in agent_actions with its input and output, giving an
 audit trail of what the agent actually did on the user's behalf.
+
+Starting a reconciliation is deliberately not a tool. The upload endpoint stores
+both PDFs and creates the job in one step, so the only way to reach a storage
+path is to have just uploaded the file. An agent asked to start a job would have
+to invent those paths, producing a job whose PDFs do not exist.
 """
 
 from __future__ import annotations
@@ -18,9 +23,8 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from recon_ai_core.constants import JobStatus, MatchStatus, TransactionSource
+from recon_ai_core.constants import MatchStatus, TransactionSource
 from recon_ai_core.models import AgentAction, Match, ReconciliationJob, Transaction
-from recon_ai_core.queue import enqueue_reconciliation_job
 from recon_ai_core.reporting import (
     build_reconciliation_summary,
     list_unmatched_transactions,
@@ -65,34 +69,6 @@ def _transaction_summary(transaction: Transaction) -> dict[str, Any]:
         "amount": str(transaction.amount),
         "currency": transaction.currency,
     }
-
-
-def create_reconciliation_job(
-    session: Session, bank_pdf_path: str, ledger_pdf_path: str
-) -> dict[str, Any]:
-    """Queue a reconciliation for two statements already in storage.
-
-    The agent cannot upload files, so the PDFs must have been stored by the
-    upload endpoint first; this tool only starts the job that processes them.
-    """
-    job = ReconciliationJob(
-        status=JobStatus.QUEUED.value,
-        bank_pdf_path=bank_pdf_path,
-        ledger_pdf_path=ledger_pdf_path,
-    )
-    session.add(job)
-    session.flush()
-
-    try:
-        enqueue_reconciliation_job(str(job.id))
-    except Exception as exc:
-        # The row is already flushed and the caller commits regardless, so mark
-        # it failed rather than leaving a queued job nothing will ever pick up.
-        job.status = JobStatus.FAILED.value
-        job.error_message = f"Failed to enqueue reconciliation job: {exc}"
-        raise ToolError(f"Could not queue the reconciliation job: {exc}") from exc
-
-    return {"job_id": str(job.id), "status": job.status}
 
 
 def get_reconciliation_status(session: Session, job_id: str) -> dict[str, Any]:
@@ -206,22 +182,6 @@ _MATCH_ID = {"type": "string", "description": "Match id"}
 
 TOOL_DEFINITIONS: list[dict[str, Any]] = [
     _tool(
-        "create_reconciliation_job",
-        "Start reconciling a bank statement against a ledger. Both PDFs must "
-        "already have been uploaded; pass the storage paths returned by the "
-        "upload step.",
-        {
-            "bank_pdf_path": {
-                "type": "string",
-                "description": "Storage path of the uploaded bank statement PDF",
-            },
-            "ledger_pdf_path": {
-                "type": "string",
-                "description": "Storage path of the uploaded ledger PDF",
-            },
-        },
-    ),
-    _tool(
         "get_reconciliation_status",
         "Check how far along a reconciliation job is: queued, extracting, "
         "matching, completed, or failed. Reports progress only. For results, "
@@ -263,7 +223,6 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
 ]
 
 TOOL_IMPLEMENTATIONS: dict[str, Callable[..., dict[str, Any]]] = {
-    "create_reconciliation_job": create_reconciliation_job,
     "get_reconciliation_status": get_reconciliation_status,
     "get_reconciliation_summary": get_reconciliation_summary,
     "list_under_review_matches": list_under_review_matches,
